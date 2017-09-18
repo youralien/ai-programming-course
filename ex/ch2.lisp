@@ -23,9 +23,61 @@
 
 ;;; takes a positive integer and prints that many dots
 ;;; iterative
+(defun print-dots (n)
+  (do ((i 1 (1+ i)))
+      ((> i n) nil)
+    (format t ".")))
 
 ;;; recursive
-;;;(defun print-dots (n)
-;;;  (if (eql n 1)
-;;;      .
-;;;    (if (- n 1) .)))
+(defun print-dots (n)
+  (cond ((< n 1) nil) 
+        (t (format t ".") (print-dots (1- n) ))))
+
+;;; takes a list and returns the number of times the symbol `a` occurs in it
+;;; iterative
+;;; Don't use SETF inside DOLIST to accumulate values for COUNT.
+;;; Use DO. Make COUNT a DO variable and don't use SETQ etc at all.
+(defun get-a-count (lst)
+  (let ((count 0))
+    (dolist (obj lst)
+      (when (eql 'a obj)
+          (setf count (incf count))))
+    count))
+
+;;; recursive
+(defun head-is-a (lst)
+  (if (eql (car lst) 'a)
+      1
+    0))
+(defun get-a-count (lst)
+  (cond ((null lst) 0)
+        (t (+ (get-a-count (cdr lst)) (head-is-a lst)))))
+
+;;; The following function is wrong because remove does not mutate lst
+;;;(defun summit (1st)
+;;;  (remove nil 1st)
+;;;  (apply #'+ 1st))
+;;; We can fix the function like so
+(defun summit (1st)
+  (apply #'+ (remove nil 1st)))
+  
+;;; The following function is wrong because there is no base case.
+;;; Recursion leads to a stack overflow.
+;;;(defun summit (1st)
+;;;  (let ((x (car 1st)))
+;;;    (if (null x)
+;;;        (summit (cdr 1st))
+;;;      (+ x (summit (cdr 1st))))))
+;;; We can fix the function like so
+(defun summit (1st)
+  (let ((x (car 1st)))
+    (cond ((null lst) 0)
+          ((null x) (summit (cdr lst)))
+          (t (+ x (summit (cdr lst)))))))
+           
+    (if (eql nil x)
+        (summit (cdr 1st))
+      (+ x (summit (cdr 1st))))))
+      
+      
+      
