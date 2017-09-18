@@ -2,7 +2,7 @@
 ;;; Using names greater, has-list-p, print-dots, get-a-count, summit
 ;;; I had only read up to 2.8 when trying these, as a warm down excercise for bed'
 
-;;; Define a function that takes two arguments and returns the greater of the  
+;;; Define a function that takes two arguments and returns the greater of the
 (defun greater (x y)
   (if (> x y)
       x
@@ -30,7 +30,7 @@
 
 ;;; recursive
 (defun print-dots (n)
-  (cond ((< n 1) nil) 
+  (cond ((< n 1) nil)
         (t (format t ".") (print-dots (1- n) ))))
 
 ;;; takes a list and returns the number of times the symbol `a` occurs in it
@@ -60,24 +60,30 @@
 ;;; We can fix the function like so
 (defun summit (1st)
   (apply #'+ (remove nil 1st)))
-  
-;;; The following function is wrong because there is no base case.
+
+;;; The following function is wrong because the base case of when the lst is null is not handled.
 ;;; Recursion leads to a stack overflow.
 ;;;(defun summit (1st)
 ;;;  (let ((x (car 1st)))
 ;;;    (if (null x)
 ;;;        (summit (cdr 1st))
 ;;;      (+ x (summit (cdr 1st))))))
-;;; We can fix the function like so
-(defun summit (1st)
-  (let ((x (car 1st)))
-    (cond ((null lst) 0)
-          ((null x) (summit (cdr lst)))
+;;; We can fix the function like so...
+(defun summit (lst)
+  (let ((x (car lst)))
+    (cond ((and (null x) (null (cdr lst))) 0)
+          ((and (null x) (not (null (cdr lst)))) (summit (cdr lst)))
           (t (+ x (summit (cdr lst)))))))
-           
-    (if (eql nil x)
-        (summit (cdr 1st))
-      (+ x (summit (cdr 1st))))))
-      
-      
-      
+
+;;; HOW ARE THESE DIFFERENT?!?!
+;;;(defun summit (lst)
+;;;  (let ((x (car lst)))
+;;;    (cond ((null x) 0)
+;;;          (t (+ x (summit (cdr lst)))))))
+;;;
+;;;(defun summit (1st)
+;;;  (let ((x (car 1st))
+;;;        (rest (cdr lst)))
+;;;    (cond ((null x) 0)
+;;;          (t (+ x (summit rest))))))
+
