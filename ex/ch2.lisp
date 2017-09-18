@@ -35,14 +35,15 @@
 
 ;;; takes a list and returns the number of times the symbol `a` occurs in it
 ;;; iterative
-;;; Don't use SETF inside DOLIST to accumulate values for COUNT.
-;;; Use DO. Make COUNT a DO variable and don't use SETQ etc at all.
+(defun nth-is-a (n lst)
+  (if (eql 'a (nth n lst))
+      1
+    0))
 (defun get-a-count (lst)
-  (let ((count 0))
-    (dolist (obj lst)
-      (when (eql 'a obj)
-          (setf count (incf count))))
-    count))
+  (do ((i 0 (1+ i))
+       (count 0 (+ (nth-is-a i lst) count)))
+      ((>= i (length lst)) count)))
+    
 
 ;;; recursive
 (defun head-is-a (lst)
