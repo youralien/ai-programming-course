@@ -17,26 +17,25 @@
   (cond ((< n 1) nil)
         (t (format t ".") (print-dots (1- n) ))))
 
-(defun nth-is-a (n lst)
-  (if (eql 'a (nth n lst))
-      1
-    0))
-
 (defun get-a-count (lst)
   (do ((i 0 (1+ i))
-       (count 0 (+ (nth-is-a i lst) count)))
+       (rest lst (cdr rest))
+       (count 0 (+ (if (eql (car rest) 'a)
+                       1
+                     0)
+                   count)))
       ((>= i (length lst)) count)))
-
-(defun head-is-a (lst)
-  (if (eql (car lst) 'a)
-      1
-    0))
 
 (defun get-a-count (lst)
   (cond ((null lst) 0)
-        (t (+ (get-a-count (cdr lst)) (head-is-a lst)))))
+        (t (+ (get-a-count (cdr lst)) (if (eql (car lst) 'a)
+                                          1
+                                        0)))))
 
-;;; The following function is wrong because remove does not mutate lst
+;;; The following function is wrong because apply was not passed a list without nils because
+;;; the symbol lst was not modified by remove! The output of the remove statement needed to be
+;;; captured in some way, either in another variable or by passing the output directly to the
+;;; apply
 ;;;(defun summit (1st)
 ;;;  (remove nil 1st)
 ;;;  (apply #'+ 1st))
@@ -53,22 +52,9 @@
 ;;;      (+ x (summit (cdr 1st))))))
 ;;; We can fix the function like so...
 (defun summit (lst)
-  (let ((x (car lst)))
-    (cond ((and (null x) (null (cdr lst))) 0)
-          ((and (null x) (not (null (cdr lst)))) (summit (cdr lst)))
-          (t (+ x (summit (cdr lst)))))))
+  (cond ((null lst) 0)
+        ((and (null (car lst)) (null (cdr lst))) 0)
+        ((and (null (car lst)) (not (null (cdr lst)))) (summit (cdr lst)))
+        (t (+ (car lst) (summit (cdr lst))))))
 
-;;; HOW ARE THESE FUNCTIONS DIFFERENT?
-;;; The first works, the second does not
-;;; i.e. (summit '(1 2 3))
-;;;(defun summit (lst)
-;;;  (let ((x (car lst)))
-;;;    (cond ((null x) 0)
-;;;          (t (+ x (summit (cdr lst)))))))
-;;;
-;;;(defun summit (1st)
-;;;  (let ((x (car 1st))
-;;;        (rest (cdr lst)))
-;;;    (cond ((null x) 0)
-;;;          (t (+ x (summit rest))))))
 
