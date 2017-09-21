@@ -36,6 +36,6 @@
          (format t "~A" (car lst)))
         (t
          (format t "~A " (car lst))
-         (when (not (listp (cdr lst)))
+         (unless (listp (cdr lst))
            (format t ". "))
          (show-continued-list (cdr lst)))))
