@@ -18,19 +18,21 @@
         (t (format t ".") (print-dots (1- n) ))))
 
 (defun get-a-count (lst)
-  (do ((i 0 (1+ i))
-       (rest lst (cdr rest))
-       (count 0 (+ (if (eql (car rest) 'a)
-                       1
-                     0)
-                   count)))
-      ((>= i (length lst)) count)))
+  (let ((len (length lst)))
+    (do ((i 0 (1+ i))
+         (rest lst (cdr rest))
+         (count 0 (+ (if (eql (car rest) 'a)
+                         1
+                       0)
+                     count)))
+        ((>= i len) count))))
 
 (defun get-a-count (lst)
   (cond ((null lst) 0)
-        (t (+ (get-a-count (cdr lst)) (if (eql (car lst) 'a)
-                                          1
-                                        0)))))
+        (t (+ (get-a-count (cdr lst))
+              (if (eql (car lst) 'a)
+                  1
+                0)))))
 
 ;;; The following function is wrong because apply was not passed a list without nils because
 ;;; the symbol lst was not modified by remove! The output of the remove statement needed to be
@@ -53,8 +55,5 @@
 ;;; We can fix the function like so...
 (defun summit (lst)
   (cond ((null lst) 0)
-        ((and (null (car lst)) (null (cdr lst))) 0)
-        ((and (null (car lst)) (not (null (cdr lst)))) (summit (cdr lst)))
+        ((null (car lst)) (summit (cdr lst)))
         (t (+ (car lst) (summit (cdr lst))))))
-
-
