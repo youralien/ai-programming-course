@@ -18,14 +18,13 @@
         (t (format t ".") (print-dots (1- n) ))))
 
 (defun get-a-count (lst)
-  (let ((len (length lst)))
-    (do ((i 0 (1+ i))
-         (rest lst (cdr rest))
-         (count 0 (+ (if (eql (car rest) 'a)
-                         1
-                       0)
-                     count)))
-        ((>= i len) count))))
+  (do ((i 0 (1+ i))
+       (rest lst (cdr rest))
+       (count 0 (+ (if (eql (car rest) 'a)
+                       1
+                     0)
+                   count)))
+      ((null rest) count)))
 
 (defun get-a-count (lst)
   (cond ((null lst) 0)

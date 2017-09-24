@@ -22,20 +22,17 @@
            (show-continued-list lst)
            (format t "]"))))
 
+(defun show-rest-list (lst)
+ (unless (null (cdr lst))
+   (format t " ")
+   (unless (listp (cdr lst))
+     (format t ". "))
+   (show-continued-list (cdr lst))))
+
 (defun show-continued-list (lst)
-  (cond ((not (listp lst)) (format t "~A" lst))
-        ((and (listp (car lst)) (null (cdr lst)))
-         (show-new-list (car lst)))
-        ((and (listp (car lst)) (not (null (cdr lst))))
-         (show-new-list (car lst))
-         (format t " ")
-         (when (not (listp (cdr lst)))
-           (format t ". "))
-         (show-continued-list (cdr lst)))
-        ((and (not (listp (car lst))) (null (cdr lst)))
-         (format t "~A" (car lst)))
-        (t
-         (format t "~A " (car lst))
-         (unless (listp (cdr lst))
-           (format t ". "))
-         (show-continued-list (cdr lst)))))
+  (cond ((not (listp lst)) (format t "~A" lst)) ; 'NIL, 12'
+        ((listp (car lst)) (show-new-list (car lst))
+         (show-rest-list lst))
+        (t (format t "~A" (car lst))
+           (show-rest-list lst))))
+
