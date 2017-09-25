@@ -1,5 +1,5 @@
 (defun show-dots (lst)
-  (cond ((or (null lst) (not (listp lst))) (format t "~A" lst))
+  (cond ((atom lst) (format t "~A" lst))
         (t (format t "(")
            (show-dots (car lst))
            (format t " . ")
