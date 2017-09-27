@@ -15,6 +15,5 @@
                  (unless (null rest)
                    (format t " . ~A" rest))
                  (format t "]"))
-               (cond ((atom (car rest)) (format t " ~A" (car rest)))
-                     (t (format t " ")
-                        (show-list (car rest))))))))
+                (format t " ")
+                (show-list (car rest))))))
