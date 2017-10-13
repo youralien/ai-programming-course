@@ -1,0 +1,23 @@
+# cs325 files that come in the zip archive
+
+clinit.cl
+cs325.asd
+cs325.lisp
+ddr-exs-tests.lisp
+ddr-plan.lisp
+ddr-tests.lisp
+ddr.lisp
+dependencies.lisp
+exercise-tests.lisp
+extend-match.lisp
+lisp-critic.lisp
+lisp-rules.lisp
+lisp-unit/
+lww-init.lisp
+mops.lisp
+package.lisp
+sddr/
+shakey-tests.lisp
+tables.lisp
+universal-plan-tests.lisp
+
