@@ -26,10 +26,15 @@
       (let ((node (car path)))
         (if (eql node end)
             (reverse path)
-          (bfs end
-               (append (cdr queue)
-                       (remove-if-not #'only-unique-elements (new-paths path node net)))
-               net))))))
+          (let ((newpaths (remove-if-not #'only-unique-elements (new-paths path node net))))
+            (format t "~A" newpaths)
+            (dolist (npath newpaths)
+              (when (eql end (car npath))
+                (throw 'abort (reverse npath))))
+            (bfs end
+                 (append (cdr queue)
+                         newpaths)
+                 net)))))))
 
 (defun only-one (sym lst)
   (null (member sym (cdr (member sym lst)))))
@@ -42,6 +47,9 @@
   (assert-false (only-unique-elements '(A B A)))
   (assert-false (only-unique-elements '(A B A B)))
   )
+
+(defun car-is-goal (goal path)
+  (eql goal (car path)))
 
 (defun new-paths (path node net)
   (mapcar #'(lambda (n)
