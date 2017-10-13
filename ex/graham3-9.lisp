@@ -11,15 +11,12 @@
                                            (mapcar #'(lambda (n) (cons n currpath))
                                                    nextstates))
                             (cdr stack))))
-    ; (format t "stack ~A ~C" stack #\linefeed)
-    ; (format t "nextpaths ~A ~C" nextpaths #\linefeed)
-    ; (format t "currpath ~A     bestpath ~A ~C" currpath bestpath #\linefeed)
-    (if (null stack)
-        bestpath
-      (if (and (funcall pred (car currpath))
-                 (> (length currpath) (length bestpath)))
-          (dfs nextpaths currpath pred gen)
-        (dfs nextpaths bestpath pred gen)))))
+    (cond
+      ((null stack) bestpath)
+      ((and (funcall pred (car currpath))
+           (> (length currpath) (length bestpath)))
+       (dfs nextpaths currpath pred gen))
+      (t (dfs nextpaths bestpath pred gen)))))
 
 
 (defun only-one-internally (sym lst)
