@@ -49,11 +49,17 @@
         ((null x) lsts)
         (t (?and (cdr x) y (match-p (car x) y lsts)))))
 
+; (defun ?not (x y lsts)
+;   ; (format t "~C x: ~A y: ~A ~C" #\linefeed x y #\linefeed)
+;   (let ((match-res (match-p (car x) y lsts)))
+;     ; (format t "~C match res: ~A ~C" #\linefeed match-res #\linefeed)
+;     ; (format t "~C lsts: ~A ~C" #\linefeed lsts #\linefeed)
+;     (cond 
+;       ((null match-res) lsts)
+;       (t nil))))
+
 (defun ?not (x y lsts)
-  (format t "~C x: ~A y: ~A ~C" #\linefeed x y #\linefeed)
-  (let ((match-res (match-p (car x) y lsts)))
-    (format t "~C match res: ~A ~C" #\linefeed match-res #\linefeed)
-    (format t "~C lsts: ~A ~C" #\linefeed lsts #\linefeed)
-    (cond 
-      ((null match-res) lsts)
-      (t nil))))
+  (when (null (match-p (car x) y lsts))
+    lsts))
+
+; (defun ?or (x y lsts)  
