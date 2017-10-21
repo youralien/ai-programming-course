@@ -62,4 +62,23 @@
   (when (null (match-p (car x) y lsts))
     lsts))
 
-; (defun ?or (x y lsts)  
+(defun ?or (x y lsts)
+  (format t "~C x: ~A y: ~A ~C" #\linefeed x y #\linefeed)
+  (let ((match-res (match-p (car x) y lsts)))
+    (format t "~C match res: ~A ~C" #\linefeed match-res #\linefeed)
+    (format t "~C lsts: ~A ~C" #\linefeed lsts #\linefeed)
+    (cond
+      ((null x) (remove nil lsts :count 1))
+      (t (?or (cdr x) y (append match-res lsts)))))) ;; match-res1 works for one test case, match-res2 works for another
+
+; (defun ?or (x y lsts)
+;   (format t "~C x: ~A y: ~A ~C" #\linefeed x y #\linefeed)
+;   (when (and (> (length lsts) 1)
+;              (member nil lsts))
+;     (setf lsts (remove nil lsts :count 1)))
+;   (let ((match-res (match-p (car x) y lsts)))
+;     (format t "~C match res: ~A ~C" #\linefeed match-res #\linefeed)
+;     (format t "~C lsts: ~A ~C" #\linefeed lsts #\linefeed)
+;     (cond
+;       ((null x) lsts)
+;       (t (?or (cdr x) y (append match-res lsts)))))) ;; match-res1 works for one test case, match-res2 works for another
