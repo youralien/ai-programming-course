@@ -67,7 +67,8 @@
 ;       (t nil))))
 
 (defun ?not (x y lsts)
-  (when (null (match-p (car x) y lsts))
+  (if (match-p (car x) y lsts)
+      nil
     lsts))
 
 (defun ?or (x y lsts)
@@ -76,9 +77,5 @@
           x))
 
 (defun ?= (x y lsts)
-  (let* ((sub-pattern (car x))
-         (function-name (cadr x))
-         (arguments (cddr x))
-         (tmp1 (apply function-name (cons y arguments))))
-    (match-p sub-pattern tmp1 lsts)))
-  
+  (destructuring-bind (sub-pattern function-name . args) x
+    (match-p sub-pattern (apply function-name (cons y args)) lsts)))
