@@ -4,37 +4,26 @@
                 (lambda (n) (eql n end))
                 (lambda (path) (cdr (assoc (car path) net))))))
 
-(defun dfs (stack bestpath pred gen)
-  (let* ((currpath (car stack))
-         (nextstates (funcall gen currpath))
-         (nextpaths (append (remove-if-not #'no-internal-cyclic-loops
-                                           (mapcar #'(lambda (n) (cons n currpath))
-                                                   nextstates))
-                            (cdr stack))))
-    (cond
-      ((null stack) bestpath)
-      ((and (funcall pred (car currpath))
-           (> (length currpath) (length bestpath)))
-       (dfs nextpaths currpath pred gen))
-      (t (dfs nextpaths bestpath pred gen)))))
-
-
-(defun only-one-internally (sym lst)
-  (let* ((first-tail (member sym lst))
-         (second-tail (member sym (cdr first-tail))))
-    (if (eql (length first-tail) (length lst))
-        (null (cdr second-tail))
-        (null second-tail))))
-
-(defun no-internal-cyclic-loops (lst)
-  (every (lambda (sym)
-           (only-one-internally sym lst))
-         lst))
-
-(define-test no-internal-cyclic-loops
-    (assert-true (no-internal-cyclic-loops '(A B C)))
-    (assert-true (no-internal-cyclic-loops '(A B A)))
-    (assert-false (no-internal-cyclic-loops '(A B A B)))
-    (assert-false (no-internal-cyclic-loops '(A B C B)))
-    (assert-false (no-internal-cyclic-loops '(B C B A)))
-  )
+; (defun dfs (stack bestpath pred gen)
+;   (let* ((currpath (car stack))
+;          (nextstates (funcall gen currpath))
+;          (nextpaths (append (remove-if-not #'no-internal-cyclic-loops
+;                                            (mapcar #'(lambda (n) (cons n currpath))
+;                                                    nextstates))
+;                             (cdr stack))))
+;     (cond
+;       ((null stack) bestpath)
+;       ((and (funcall pred (car currpath))
+;            (> (length currpath) (length bestpath)))
+;        (dfs nextpaths currpath pred gen))
+;       (t (dfs nextpaths bestpath pred gen)))))
+      
+(defun path-thru-node-to-end (path pred gen)
+  (format t "path: ~A~C" path #\linefeed)
+  (do* ((n-to-explore (funcall gen path) (cdr n-to-explore))
+       (n (car n-to-explore) (car n-to-explore)))
+      ((null n-to-explore))
+    (if (funcall pred n)
+        (return (cons n path))
+      (unless (member n path)
+        (return (path-thru-node-to-end (cons n path) pred gen))))))

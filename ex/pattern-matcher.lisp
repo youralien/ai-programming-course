@@ -70,55 +70,15 @@
   (when (null (match-p (car x) y lsts))
     lsts))
 
-; (defun ?or (x y lsts)
-;   (format t "~C x: ~A y: ~A ~C" #\linefeed x y #\linefeed)
-;   (let ((match-res (match-p (car x) y (list nil))))
-;     (format t "~C match res: ~A ~C" #\linefeed match-res #\linefeed)
-;     (format t "~C lsts: ~A ~C" #\linefeed lsts #\linefeed)
-;     (cond
-;       ((null x) (remove nil lsts :count 1))
-;       (t (?or (cdr x) y (append match-res lsts))))))
-
-; (defun ?or (x y lsts)
-;   (format t "~C x: ~A y: ~A ~C" #\linefeed x y #\linefeed)
-;   (let ((match-res (match-p (car x) y lsts)))
-;     (format t "~C match res: ~A ~C" #\linefeed match-res #\linefeed)
-;     (format t "~C lsts: ~A ~C" #\linefeed lsts #\linefeed)
-;     (cond
-;       ((null x) (remove nil lsts :count 1))
-;       (t (?or (cdr x) y (append match-res lsts))))))
-
 (defun ?or (x y lsts)
-  (format t "~Cpatterns: ~A~C" #\linefeed x #\linefeed)
-  (format t "lsts: ~A~C" lsts #\linefeed)
-  (format t "input: ~A~C" y #\linefeed)
   (mapcan #'(lambda (ptrn)
              (match-p ptrn y lsts))
           x))
-  
-
-; (defun ?or (x y lsts)
-;   (format t "~C x: ~A y: ~A ~C" #\linefeed x y #\linefeed)
-;   (when (and (> (length lsts) 1)
-;              (member nil lsts))
-;     (setf lsts (remove nil lsts :count 1)))
-;   (let ((match-res (match-p (car x) y lsts)))
-;     (format t "~C match res: ~A ~C" #\linefeed match-res #\linefeed)
-;     (format t "~C lsts: ~A ~C" #\linefeed lsts #\linefeed)
-;     (cond
-;       ((null x) lsts)
-;       (t (?or (cdr x) y (append match-res lsts))))))
-
 
 (defun ?= (x y lsts)
   (let* ((sub-pattern (car x))
          (function-name (cadr x))
          (arguments (cddr x))
          (tmp1 (apply function-name (cons y arguments))))
-    ; (format t "sub-pattern: ~A~C" sub-pattern #\linefeed)
-    ; (format t "function-name: ~A~C" function-name #\linefeed)
-    ; (format t "arguments: ~A~C" arguments #\linefeed)
-    ; (format t "form: ~A~C" y #\linefeed)
-    ; (format t "result-out: ~A~C" tmp1 #\linefeed)
     (match-p sub-pattern tmp1 lsts)))
   
