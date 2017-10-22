@@ -30,14 +30,14 @@
       nil
     (let* ((path (car queue))
            (node (car path))
-           (newpaths (new-paths path node net)))
-      (dolist (npath newpaths)
-        (when (eql end (car npath))
-          (return-from bfs (reverse npath))))
-      (bfs end
-           (append (cdr queue)
-                   newpaths)
-           net))))
+           (next-nodes (cdr (assoc (car path) net)))
+           (found-end (member end next-nodes)))
+      (if found-end
+          (reverse (cons (car found-end) path))
+        (bfs end
+             (append (cdr queue)
+                     (new-paths path node net))
+             net)))))
 
 (defun new-paths (path node net)
   (mapcan #'(lambda (n)
