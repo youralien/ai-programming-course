@@ -8,9 +8,7 @@
   (if (empty-queue-p paths)
       nil
     (let* ((path (car paths))
-           (newpaths (remove-if-not
-                      #'only-unique-elements
-                      (mapcar #'(lambda (n) (cons n path)) (funcall gen path)))))
+           (newpaths (new-paths path gen)))
       (dolist (npath newpaths)
         (when (funcall pred (car npath))
           (return-from bfs npath)))
@@ -19,8 +17,8 @@
            pred
            gen))))
     
-(defun only-one (sym lst)
-  (null (member sym (cdr (member sym lst)))))
-
-(defun only-unique-elements (lst)
-  (every (lambda (sym) (only-one sym lst)) lst))
+(defun new-paths (path gen)
+  (mapcan #'(lambda (n)
+              (unless (member n path)
+                (list (cons n path))))
+    (funcall gen path)))
