@@ -14,7 +14,8 @@
 
 (defun new-paths (path node end net)
   (mapcan #'(lambda (n)
-              (unless (member n path)
+              (if (member n path)
+                  nil
                 (let ((npath (cons n path)))
                   (if (eql n end)
                       (throw 'abort (reverse npath))
@@ -40,6 +41,7 @@
 
 (defun new-paths (path node net)
   (mapcan #'(lambda (n)
-              (unless (member n path)
+              (if (member n path)
+                  nil
                 (list (cons n path))))
     (cdr (assoc node net))))
