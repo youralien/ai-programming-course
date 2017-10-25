@@ -147,11 +147,12 @@ OTHER DEALINGS IN THE SOFTWARE.
   )        
 
 (define-test subexp
-  (assert-equal 'a (subexp 'a))
+  (assert-equal '(a) (subexp 'a))
+  (assert-equal '((a) a) (subexp '(a))
   (assert-equal '(((a)) (a) a) (subexp '((a))))
   (assert-equal '((a b) a b) (subexp '(a b)))
-  (assert-equal nil (subexp nil))
-  (assert-equal '((nil) . nil) (subexp '(nil)))
+  (assert-equal '(nil) (subexp nil))
+  (assert-equal '((nil) nil) (subexp '(nil)))
 )
 
 (define-test rename-vars

@@ -90,8 +90,45 @@
   ;      ((null remain) )
       
   ;     (nil))
+
+(defun subexp (y)
+  (do ((i 0 (1+ i))
+        (expr y
+             (if (atom expr)
+                 nil
+               (cdr expr)))
+        (total nil
+             (cond
+               ((atom expr)
+                (format t "(atom expr)~C" #\linefeed)
+                (format t "(append total (list expr)): ~A ~C" (append total (list expr)) #\linefeed)
+                (append total (list expr)))
+               ((null (cdr expr))
+                  (cond ((and (equal y expr) (atom (car expr)))  ; '(nil) or '(a)
+                         (format t "1")
+                         (append total (list expr) (list (car expr))))
+                        ((atom (car expr)) ; '(b)
+                         (format t "2")
+                         (append total (list (car expr))))
+                        (t                 ; '((a))
+                         (format t "3")
+                         (append total (list expr) (subexp (car expr))))))
+              ; ((atom (car expr)) (append total (list expr) (list (car expr))))
+               (t (append total (list expr) (subexp (car expr)))))))
+       ((null expr)
+        ; (format t "~Ci: ~A~C" #\linefeed i #\linefeed)
+        ; (format t "total: ~A~C" total #\linefeed)
+        ; (format t "expr: ~A~C" expr #\linefeed)
+        (if (null total)
+            (list nil)
+          total))
+    (format t "~Ci: ~A~C" #\linefeed i #\linefeed)
+    (format t "total: ~A~C" total #\linefeed)
+    (format t "expr: ~A~C" expr #\linefeed)))
+
 (defun subexp (y)
   (cond
     ((atom y) y)
-    ((and (null (cdr y)) (atom (car y))) y)
-    (t (append (list y) (list (subexp (car y))) (subexp (cdr y))))))
+    ((and (null (cdr y)) (atom (car y))) (append (list y) (list (car y))))
+    ; ((and (null (cdr y)) (atom (car y))) y)
+    (t (append (list y) (subexp (car y)) (subexp (cdr y))))))
