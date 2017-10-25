@@ -2,61 +2,6 @@
 
 (in-package #:exmatch)
 
-;;; The base code
-
-(defun match-p (x y &optional (lsts '(nil)))
-  (cond ((var-p x) (update-bindings x y lsts))
-        ((atom x) (and (eql x y) lsts))
-        ((?-function-p (car x))
-         (funcall (car x) (cdr x) y lsts))
-        ((atom y) nil)
-        (t (match-p (cdr x) (cdr y)
-                    (match-p (car x) (car y) lsts)))))
-
-(defun var-p (x)
-  (and (symbolp x) 
-       (eql (char (symbol-name x) 0) #\?)))
-
-(defun update-bindings (x y lsts)
-  (cond ((eql x '?) lsts)
-        ((null lsts) nil)
-        (t
-         (append (bind-var x y (car lsts))
-                 (update-bindings x y (cdr lsts))))))
-
-(defun bind-var (x y lst)
-  (let ((a (assoc x lst)))
-    (cond ((null a)
-           (list (cons (cons x y) lst)))
-          ((equal (cdr a) y) (list lst))
-          (t nil))))
-
-;;; Extension code
-
-(defun ?-function-p (x)
-  (and (var-p x) (fboundp x)))
-
-(defun ?? (x y lsts)
-  (and (apply (car x) y (cdr x)) lsts))
-
-(defun ?* (x y lsts)
-  (append (match-p x y lsts)
-          (and (consp y)
-               (?* x (cdr y) lsts))))
-
-(defun ?and (x y lsts)
-  (cond ((null lsts) nil)
-        ((null x) lsts)
-        (t (?and (cdr x) y (match-p (car x) y lsts)))))
-
-; (defun ?and (x y lsts)
-;   (cond ((null lsts) nil)
-;         ((null x) lsts)
-;         (t (let ((match-res (match-p (car x) y lsts)))
-;              (format t "~C match res: ~A ~C" #\linefeed match-res #\linefeed)
-;              (format t "~C lsts: ~A ~C" #\linefeed lsts #\linefeed)
-;              (?and (cdr x) y match-res)))))
-
 ; (defun ?not (x y lsts)
 ;   ; (format t "~C x: ~A y: ~A ~C" #\linefeed x y #\linefeed)
 ;   (let ((match-res (match-p (car x) y lsts)))
@@ -96,16 +41,13 @@
         (expr y (if (atom expr) nil (cdr expr)))
         (total nil
              (cond
-               ((atom expr)
-                (format t "(atom expr)~C" #\linefeed)
-                (format t "(append total (list expr)): ~A ~C" (append total (list expr)) #\linefeed)
-                (append total (list expr)))
+               ((atom expr) (cons expr total))
                ((null (cdr expr))
                   (cond ((and (equal y expr) (atom (car expr)))  ; '(nil) or '(a)
-                         (append total (list expr) (list (car expr))))
+                         (cons (car expr) (cons expr total)))
                         ((atom (car expr)) ; '(b)
-                         (append total (list (car expr))))
+                         (cons (car expr) total))
                         (t                 ; '((a))
-                         (append total (list expr) (subexp (car expr))))))
-               (t (append total (list expr) (subexp (car expr)))))))
+                         (append (cons expr total) (subexp (car expr))))))
+               (t (append (cons expr total) (subexp (car expr)))))))
        ((null expr) (or total (list nil)))))
