@@ -146,6 +146,14 @@ OTHER DEALINGS IN THE SOFTWARE.
   (assert-equality set-equal '(((?x . 5)) ((?x . 12))) (match-p '(?contains (?and (?? numberp) ?x)) '((a 12) c (((5))))))
   )        
 
+(define-test subexp
+  (assert-equal 'a (subexp 'a))
+  (assert-equal '(((a)) (a) a) (subexp '((a))))
+  (assert-equal '((a b) a b) (subexp '(a b)))
+  (assert-equal nil (subexp nil))
+  (assert-equal '((nil) . nil) (subexp '(nil)))
+)
+
 (define-test rename-vars
   (assert-true (valid-renaming-p '?x))
   (assert-true (valid-renaming-p '(?x ?x)))
