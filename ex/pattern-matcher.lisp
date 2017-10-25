@@ -25,9 +25,11 @@
   (destructuring-bind (sub-pattern function-name . args) x
     (match-p sub-pattern (apply function-name (cons y args)) lsts)))
 
-; (defun ?contains (x y lsts)
-;   (mapcan #'(lambda (subexp)
-;              (match-p '))
+(defun ?contains (x y lsts)
+  (mapcan #'(lambda (expr)
+             (match-p (car x) expr))
+          (subexp y)))
+  
 
   ; (do* ((head (car y) (car remain))
   ;       (remain (cdr y) (cdr remain))
