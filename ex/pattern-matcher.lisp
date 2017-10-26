@@ -29,27 +29,15 @@
   (mapcan #'(lambda (expr)
              (match-p (car x) expr))
           (subexp y)))
-  
-
-  ; (do* ((head (car y) (car remain))
-  ;       (remain (cdr y) (cdr remain))
-  ;       (out nil ))
-  ;      ((null remain) )
-      
-  ;     (nil))
 
 (defun subexp (y)
-  (do ((i 0 (1+ i))
-        (expr y (if (atom expr) nil (cdr expr)))
-        (total nil
-             (cond
-               ((atom expr) (cons expr total))
-               ((null (cdr expr))
-                  (cond ((and (equal y expr) (atom (car expr)))  ; '(nil) or '(a)
-                         (cons (car expr) (cons expr total)))
-                        ((atom (car expr)) ; '(b)
-                         (cons (car expr) total))
-                        (t                 ; '((a))
-                         (append (cons expr total) (subexp (car expr))))))
-               (t (append (cons expr total) (subexp (car expr)))))))
-       ((null expr) (or total (list nil)))))
+  (do ((expr y (if (atom expr) nil (cdr expr)))
+       (total nil
+            (cond
+              ((atom expr) (cons expr total))
+              ((atom (car expr))
+                   (if (eql y expr)
+                       (list* (car expr) expr total)
+                     (cons (car expr) total)))
+              (t (append (cons expr total) (subexp (car expr)))))))
+      ((null expr) (or total (list nil)))))
