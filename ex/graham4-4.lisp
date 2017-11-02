@@ -5,3 +5,9 @@
         (t (append (bst-elements (node-r bst))
                    (list (node-elt bst))
                    (bst-elements (node-l bst))))))
+
+(defun bst-elements (bst)
+  (let ((out nil))
+    (bst-traverse #'(lambda (val) (setf out (cons val out)))
+                  bst)
+    out))
