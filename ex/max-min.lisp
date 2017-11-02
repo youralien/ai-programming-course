@@ -4,14 +4,9 @@
     (t (let ((elem (svref vec start)))
          (find-max-min vec start end)))))
 
-(defun find-max-min (vec start end &optional (maximum nil) (minimum nil))
-  (format t "start: ~A~C" start #\linefeed)
-  (format t "end: ~A~C" end #\linefeed)
-  (format t "max: ~A~C" maximum #\linefeed)
+(defun find-max-min (vec start end &optional maximum minimum)
   (if (eql start end)
-      (progn
-        (format t "hehe")
-      	(values maximum minimum))
+    	(values maximum minimum)
 	  (let ((elem (svref vec start)))
 	    (find-max-min vec
 	                  (1+ start)
