@@ -3,15 +3,15 @@
     ((>= start end) (values nil nil))
     (t (find-max-min vec start end))))
 
-(defun find-max-min (vec start end &optional maximum minimum)
+(defun find-max-min (vec start end &key maximum minimum)
   (if (eql start end)
     	(values maximum minimum)
 	  (let ((elem (svref vec start)))
 	    (find-max-min vec
 	                  (1+ start)
 	                  end
-	               	  (if (null maximum) elem (max maximum elem))
-	                  (if (null minimum) elem (min minimum elem))))))
+	               	  :maximum (if (null maximum) elem (max maximum elem))
+	                  :minimum (if (null minimum) elem (min minimum elem))))))
 
 ; (defun find-max-min (vec start end)
 ;   (if (eql start end)
