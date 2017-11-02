@@ -6,18 +6,14 @@
 (defun bfs (paths pred gen)
   (if (empty-queue-p paths)
       nil
-    (let* ((path (car paths))
-           (newpaths (new-paths path gen))
+    (let* ((newpaths (new-paths (car paths) gen))
            (found-end
-            (do* ((tmppaths newpaths (cdr tmppaths))
-                  (npath (car tmppaths) (car tmppaths)))
-                 ((or (null tmppaths)
-                      (funcall pred (car npath)))
-                  npath))))
-      (if found-end
-          found-end
-        (bfs (append (cdr paths) newpaths) pred gen)))))
-    
+            (do ((tmppaths newpaths (cdr tmppaths)))
+                ((or (null tmppaths)
+                     (funcall pred (car (car tmppaths))))
+                 (car tmppaths)))))
+      (or found-end (bfs (append (cdr paths) newpaths) pred gen)))))
+
 (defun new-paths (path gen)
   (mapcan #'(lambda (n)
               (if (member n path)
