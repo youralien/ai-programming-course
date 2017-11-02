@@ -18,3 +18,10 @@
                 :left (3tree-clone (3tree-left tree))
                 :middle (3tree-clone (3tree-middle tree))
                 :right (3tree-clone (3tree-right tree)))))
+
+(defun 3tree-member (elem tree)
+  (cond ((null tree) nil)
+        ((eql elem (3tree-data tree)) t)
+        (t (or (3tree-member elem (3tree-left tree))
+               (3tree-member elem (3tree-middle tree))
+               (3tree-member elem (3tree-right tree))))))
