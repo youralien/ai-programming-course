@@ -26,18 +26,31 @@
     (match-p sub-pattern (apply function-name (cons y args)) lsts)))
 
 (defun ?contains (x y lsts)
-  (mapcan #'(lambda (expr)
-             (match-p (car x) expr))
-          (subexp y)))
-
-(defun subexp (y)
   (do ((expr y (if (atom expr) nil (cdr expr)))
        (total nil
-            (cond
-              ((atom expr) (cons expr total))
-              ((atom (car expr))
-                   (if (eql y expr)
-                       (list* (car expr) expr total)
-                     (cons (car expr) total)))
-              (t (append (cons expr total) (subexp (car expr)))))))
-      ((null expr) (or total (list nil)))))
+        (cond
+          ((atom expr) (append (match-p (car x) expr) total))
+          ((atom (car expr))
+               (if (eql y expr)
+                   (append (match-p (car x) (car expr)) (match-p (car x) expr) total)
+                 (append (match-p (car x) (car expr)) total)))
+          (t (append (match-p (car x) expr) total
+                     (?contains x (car expr) lsts))))))
+      ((null expr) (or total (match-p (car x) y)))))
+
+; (defun ?contains (x y lsts)
+;   (mapcan #'(lambda (expr)
+;              (match-p (car x) expr))
+;           (subexp y)))
+
+; (defun subexp (y)
+;   (do ((expr y (if (atom expr) nil (cdr expr)))
+;        (total nil
+;             (cond
+;               ((atom expr) (cons expr total))
+;               ((atom (car expr))
+;                    (if (eql y expr)
+;                        (list* (car expr) expr total)
+;                      (cons (car expr) total)))
+;               (t (append (cons expr total) (subexp (car expr)))))))
+;       ((null expr) (or total (list nil)))))
