@@ -29,11 +29,11 @@
 (defun ?contains (x y lsts)
   (do ((expr y (if (atom expr) nil (cdr expr)))
        (total (match-p (car x) y)
-        (cond
-          ((atom expr) total)
-          ((atom (car expr))
-             (append (match-p (car x) (car expr)) total))
-          (t (append (?contains x (car expr) lsts) total)))))
+          (cond
+            ((atom expr) total)
+            ((atom (car expr))
+               (append (match-p (car x) (car expr)) total))
+            (t (append (?contains x (car expr) lsts) total)))))
       ((null expr) total)))
 
 ;;; contains, long form
