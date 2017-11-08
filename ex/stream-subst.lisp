@@ -20,7 +20,7 @@
             (or (setf from-buf (buf-next buf))
                 (read-char in nil :eof))))
         ((eql c :eof))
-      (cond ((or (char= c (char old pos)) (char= wildcard (char old pos)))
+      (cond ((or (char= c (elt old pos)) (char= wildcard (elt old pos)))
              (incf pos)
              (cond ((= pos len)            ; 3
                     (princ new out)
