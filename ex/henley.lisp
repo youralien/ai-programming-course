@@ -24,8 +24,8 @@
 ; 3) return number of entries in hashtable
 (defun read-text (pathname)
   (with-open-file (s pathname :direction :input)
-    (read-stream s see))
-  (return (hash-table-count *words*))
+    (read-stream s (make-see)))
+  (return-from read-text (hash-table-count *words*)))
 
 ; read-stream handles reading characters at a time until a complete
 ; "word" is formed. then it apply's function to the "word".
@@ -54,19 +54,16 @@
     (#\. '|.|) (#\, '|,|) (#\; '|;|) 
     (#\! '|!|) (#\? '|?|) ))
 
-; define a global closure see using make-see function.
-; this allows us to set see from the start by calling (make-see)
-; without having to reload the whole form
-(defvar see nil)
+; refactored (defun see (...)) to make-see that returns a closure of
+; what see did.
 (defun make-see ()
   (let ((prev `|.|))
-    (setq see (lambda (symb)
+    (return-from make-see (lambda (symb)
       (let ((pair (assoc symb (gethash prev *words*))))
         (if (null pair)
             (push (cons symb 1) (gethash prev *words*))
             (incf (cdr pair))))
       (setf prev symb)))))
-(make-see)
 
 ; made generate-text iterative.
 ; the recursive version in lisp didn't benefit from tail-recursion
