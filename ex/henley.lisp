@@ -73,7 +73,8 @@
     (do ((next '|.| (random-next next))
          (iter n (1- iter)))
         ((= iter 0))
-      (format t "~A " next))))
+      (unless (eql iter n)
+        (format t "~A " next)))))
 
 (defun random-next (prev)
   (let* ((choices (gethash prev *words*))
