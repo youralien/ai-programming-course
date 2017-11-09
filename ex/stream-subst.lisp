@@ -20,15 +20,7 @@
             (or (setf from-buf (buf-next buf))
                 (read-char in nil :eof))))
         ((eql c :eof))
-      (cond ((or (char= c (elt old pos))
-                 (char= wildcard (elt old pos))
-                 (char= ':wild (elt old pos))
-                 (and (char= ':digit (elt old pos))
-                      (digit-char-p c))
-                 (and (char= ':alpha (elt old pos))
-                      (alpha-char-p c))
-                 (and (char= ':alphanumeric (elt old pos))
-                      (alphanumericp c)))
+      (cond ((next-char-is-valid c (elt old pos) wildcard)
              (incf pos)
              (cond ((= pos len)            ; 3
                     (princ new out)
@@ -48,3 +40,14 @@
              (buf-reset buf)
              (setf pos 0))))
     (buf-flush buf out)))
+
+
+(defun next-char-is-valid (c old-elem wildcard)
+  (or (char= old-elem c)
+      (char= old-elem wildcard)
+      (and (symbolp old-elem)
+           (ecase old-elem
+             (:wild t)
+             (:digit (digit-char-p c))
+             (:alpha (alpha-char-p c))
+             (:alphanumeric (alphanumericp c))))))
