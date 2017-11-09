@@ -2,25 +2,19 @@
 
 (defconstant maxword 100)
 
-; (defun read-text (pathname)
-;   (with-open-file (s pathname :direction :input)
-;     (let ((buffer (make-string maxword))
-;           (pos 0))
-;       (do ((c (read-char s nil :eof) 
-;               (read-char s nil :eof)))
-;           ((eql c :eof))
-;         (if (or (alpha-char-p c) (char= c #\'))
-;             (progn
-;               (setf (aref buffer pos) c)
-;               (incf pos))
-;             (progn
-;               (unless (zerop pos)
-;                 (funcall see (intern (string-downcase 
-;                                (subseq buffer 0 pos))))
-;                 (setf pos 0))
-;               (let ((p (punc c)))
-;                 (if p (funcall see p))))))))
-;   (print *words*))
+(defun henley-p (string)
+  (with-input-from-string (in string)
+    (defvar poop nil)
+    (defun make-poop ()
+      (let ((prev `|.|))
+        (setq poop (lambda (symb)
+          (let ((pair (assoc symb (gethash prev *words*))))
+            (when (null pair)
+              (return-from henley-p nil)))
+          (setf prev symb)))))
+    (make-poop)
+    (read-stream in poop))
+  (return-from henley-p t))
 
 (defun read-text (pathname)
   (with-open-file (s pathname :direction :input)
