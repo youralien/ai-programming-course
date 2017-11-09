@@ -15,24 +15,27 @@
               (incf pos))
             (progn
               (unless (zerop pos)
-                (see (intern (string-downcase 
+                (funcall see (intern (string-downcase 
                                (subseq buffer 0 pos))))
                 (setf pos 0))
               (let ((p (punc c)))
-                (if p (see p)))))))))
+                (if p (funcall see p)))))))))
   
 (defun punc (c)
   (case c
     (#\. '|.|) (#\, '|,|) (#\; '|;|) 
     (#\! '|!|) (#\? '|?|) ))
 
-(let ((prev `|.|))
-  (defun see (symb)
-    (let ((pair (assoc symb (gethash prev *words*))))
-      (if (null pair)
-          (push (cons symb 1) (gethash prev *words*))
-          (incf (cdr pair))))
-    (setf prev symb)))
+(defvar see nil)
+(defun make-see ()
+  (let ((prev `|.|))
+    (setq see (lambda (symb)
+      (let ((pair (assoc symb (gethash prev *words*))))
+        (if (null pair)
+            (push (cons symb 1) (gethash prev *words*))
+            (incf (cdr pair))))
+      (setf prev symb)))))
+(make-see)
 
 (defun generate-text (n)
   (if (zerop n)
