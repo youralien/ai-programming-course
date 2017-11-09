@@ -2,25 +2,50 @@
 
 (defconstant maxword 100)
 
+; (defun read-text (pathname)
+;   (with-open-file (s pathname :direction :input)
+;     (let ((buffer (make-string maxword))
+;           (pos 0))
+;       (do ((c (read-char s nil :eof) 
+;               (read-char s nil :eof)))
+;           ((eql c :eof))
+;         (if (or (alpha-char-p c) (char= c #\'))
+;             (progn
+;               (setf (aref buffer pos) c)
+;               (incf pos))
+;             (progn
+;               (unless (zerop pos)
+;                 (funcall see (intern (string-downcase 
+;                                (subseq buffer 0 pos))))
+;                 (setf pos 0))
+;               (let ((p (punc c)))
+;                 (if p (funcall see p))))))))
+;   (print *words*))
+
 (defun read-text (pathname)
   (with-open-file (s pathname :direction :input)
-    (let ((buffer (make-string maxword))
-          (pos 0))
-      (do ((c (read-char s nil :eof) 
-              (read-char s nil :eof)))
-          ((eql c :eof))
-        (if (or (alpha-char-p c) (char= c #\'))
-            (progn
-              (setf (aref buffer pos) c)
-              (incf pos))
-            (progn
-              (unless (zerop pos)
-                (funcall see (intern (string-downcase 
-                               (subseq buffer 0 pos))))
-                (setf pos 0))
-              (let ((p (punc c)))
-                (if p (funcall see p)))))))))
+    (read-stream s see))
+  (print *words*))
   
+(defun read-stream (stream function)
+  (let ((buffer (make-string maxword))
+        (pos 0)
+        (eof-obj (lambda (x) x)))
+    (do ((c (read-char stream nil eof-obj) 
+            (read-char stream nil eof-obj)))
+        ((eql c eof-obj))
+      (if (or (alpha-char-p c) (char= c #\'))
+          (progn
+            (setf (aref buffer pos) c)
+            (incf pos))
+          (progn
+            (unless (zerop pos)
+              (funcall function (intern (string-downcase 
+                             (subseq buffer 0 pos))))
+              (setf pos 0))
+            (let ((p (punc c)))
+              (if p (funcall function p))))))))
+
 (defun punc (c)
   (case c
     (#\. '|.|) (#\, '|,|) (#\; '|;|) 
