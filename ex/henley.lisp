@@ -34,13 +34,13 @@
           (incf (cdr pair))))
     (setf prev symb)))
 
-
-(defun generate-text (n &optional (prev '|.|))
+(defun generate-text (n)
   (if (zerop n)
       (terpri)
-      (let ((next (random-next prev)))
-        (format t "~A " next)
-        (generate-text (1- n) next))))
+    (do ((next '|.| (random-next next))
+         (iter n (1- iter)))
+        ((= iter 0))
+      (format t "~A " next))))
 
 (defun random-next (prev)
   (let* ((choices (gethash prev *words*))
