@@ -26,22 +26,30 @@
 ; read-stream handles reading characters at a time until a complete
 ; "word" is formed. then it apply's function to the "word".
 ; why? useful generalization, i.e. used in read-text and henley-p
+; refactors:
+; 1) removed the top level let, since do can initialize buffer and pos
+; 2) made function word-part-p, which returns true if character
+;    is an alpha or apostrophe
+; 3) pos is accumulated in the do, instead of using incf. The update of pos
+;    depended on word-part-p
+; The definition is still too long according to lisp critic, but I argue
+; that it is more clear about how the mechanism of writing to/from the buffer works,
+; and certaintly shorter than the original from graham
+(defun word-part-p (c)
+  (or (alpha-char-p c) (char= c #\')))
+
 (defun read-stream (stream function)
-  (let ((buffer (make-string maxword))
-        (pos 0))
-    (do ((c (read-char stream nil :eof) 
-            (read-char stream nil :eof)))
-        ((eql c :eof))
-      (cond
-        ((or (alpha-char-p c) (char= c #\'))
-         (setf (aref buffer pos) c)
-         (incf pos))
-        (t (unless (zerop pos)
-             (funcall function (intern (string-downcase 
-                            (subseq buffer 0 pos))))
-             (setf pos 0))
-           (let ((p (punc c)))
-             (when p (funcall function p))))))))
+  (do ((c (read-char stream nil :eof) (read-char stream nil :eof))
+       (buffer (make-string maxword) buffer)
+       (pos 0 (if (word-part-p c) (1+ pos) 0)))
+      ((eql c :eof))
+    (cond
+      ((word-part-p c) (setf (aref buffer pos) c))
+      (t (unless (zerop pos)
+           (funcall function (intern (string-downcase
+                          (subseq buffer 0 pos)))))
+         (let ((p (punc c)))
+           (when p (funcall function p)))))))
 
 (defun punc (c)
   (case c
