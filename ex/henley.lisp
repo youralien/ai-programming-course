@@ -28,22 +28,20 @@
 ; why? useful generalization, i.e. used in read-text and henley-p
 (defun read-stream (stream function)
   (let ((buffer (make-string maxword))
-        (pos 0)
-        (eof-obj (lambda (x) x)))
-    (do ((c (read-char stream nil eof-obj) 
-            (read-char stream nil eof-obj)))
-        ((eql c eof-obj))
-      (if (or (alpha-char-p c) (char= c #\'))
-          (progn
-            (setf (aref buffer pos) c)
-            (incf pos))
-          (progn
-            (unless (zerop pos)
-              (funcall function (intern (string-downcase 
-                             (subseq buffer 0 pos))))
-              (setf pos 0))
-            (let ((p (punc c)))
-              (if p (funcall function p))))))))
+        (pos 0))
+    (do ((c (read-char stream nil :eof) 
+            (read-char stream nil :eof)))
+        ((eql c :eof))
+      (cond
+        ((or (alpha-char-p c) (char= c #\'))
+         (setf (aref buffer pos) c)
+         (incf pos))
+        (t (unless (zerop pos)
+             (funcall function (intern (string-downcase 
+                            (subseq buffer 0 pos))))
+             (setf pos 0))
+           (let ((p (punc c)))
+             (when p (funcall function p))))))))
 
 (defun punc (c)
   (case c
