@@ -4,14 +4,12 @@
 
 (defun henley-p (string)
   (with-input-from-string (in string)
-    (let* ((word-follows-from-prev nil)
-           (prev `|.|))
-      (setq word-follows-from-prev (lambda (symb)
-        (let ((pair (assoc symb (gethash prev *words*))))
-          (when (null pair)
-            (return-from henley-p nil)))
-        (setf prev symb)))
-      (read-stream in word-follows-from-prev)))
+    (let ((prev `|.|))
+      (flet ((word-follows-from-prev (symb)
+                (when (null (assoc symb (gethash prev *words*)))
+                  (return-from henley-p nil))
+                (setf prev symb)))
+        (read-stream in #'word-follows-from-prev))))
   t)
 
 ; read-text calls new general function read-stream
