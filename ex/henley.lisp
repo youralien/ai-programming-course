@@ -12,7 +12,7 @@
             (return-from henley-p nil)))
         (setf prev symb)))
       (read-stream in word-follows-from-prev)))
-  (return-from henley-p t))
+  t)
 
 ; read-text calls new general function read-stream
 ; why? better layers of abstraction. read-text can be summarized as
@@ -23,7 +23,7 @@
 (defun read-text (pathname)
   (with-open-file (s pathname :direction :input)
     (read-stream s (make-see)))
-  (return-from read-text (hash-table-count *words*)))
+  (hash-table-count *words*))
 
 ; read-stream handles reading characters at a time until a complete
 ; "word" is formed. then it apply's function to the "word".
