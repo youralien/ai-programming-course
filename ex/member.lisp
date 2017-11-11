@@ -14,14 +14,17 @@
     ;     (member ?x (cons ?y nil)))
     
     ; -- best working example to date! --
-    ; while this works... it returns the wrong part of member
-    ; 0[2]: (ASK (MEMBER C (CONS A (CONS B (CONS C NIL)))))
-    ; 0[2]: returned ((MEMBER C (CONS A (CONS B #))))
-    ; and this returns nil
+    ; this returns NIL but expected T
     ; (ASK (MEMBER B (CONS A (CONS B (CONS C NIL)))))
-    (member ?x (cons ?x nil))
+    ; (member ?x (cons ?x nil))
+    ; (<- (member ?x (cons ?l1 ?l2))
+    ;     (member ?x ?l2))
+    
+    ; -- passes all the tests! --
+    (member ?x (cons ?x ?l1))
     (<- (member ?x (cons ?l1 ?l2))
         (member ?x ?l2))
+    
     ; (<- (member ?x (cons ?x nil) (cons ?x nil))
     ;     (member ?x ?x nil))
     ))
