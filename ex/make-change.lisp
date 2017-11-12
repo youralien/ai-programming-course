@@ -26,7 +26,21 @@
          (subtract-and-record (- val use-coin)
                               coins
                               coin-usage-ht)))))
+
+(defun recursive-function (arg)
+  (cond ((atom arg) arg)
+        (t (cons arg (recursive-function (cdr arg))))))
     
+
+(defun recursive-function (arg)
+  (cond ((atom arg) arg)
+        (t (values-list
+             (cons arg (recursive-function (cdr arg)))))))
+
+(defun recursive-function (arg accum)
+  (cond ((atom arg) (values-list accum))
+        (t (recursive-function (cdr arg)
+                               (cons arg accum)))))
 
 ; i don't like this I am brain dead
 ; (defun make-change (val &optional (coins '(25 10 5 1)))
