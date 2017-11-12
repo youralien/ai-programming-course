@@ -12,10 +12,10 @@
 
 (defun subtract-and-record (val coins coin-usage-ht)
   (let ((use-coin (some #'(lambda (coin)
-                         (if (>= val coin)
-                             coin
-                            nil))
-                      coins)))
+                            (if (>= val coin)
+                                coin
+                              nil))
+                        coins)))
     (cond
       ((null use-coin)
        (values-list
