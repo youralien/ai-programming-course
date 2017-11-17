@@ -21,3 +21,21 @@
       (do ((,counter 0 (1+ ,counter))
            (,accum nil (cons ,expr ,accum)))
           ((>= ,counter ,stopsym) (reverse ,accum))))))
+
+; ;PRESERVE: Illegal function object: (SETQ *READ-BASE* 2).
+; (defmacro preserve (syms &rest body)
+;   `(let ,(mapcar #'(lambda (s)
+;                     `(,s (gensym))) syms)
+;     (let ((toexec (gensym))
+;           (exprs ,body))
+;       `(do ((,toexec ,exprs (cdr ,toexec)))
+;            ((= 1 (length ,toexec)))
+;           (car ,toexec)))))
+
+(defmacro preserve (syms &rest body)
+  (if (null (cdr syms))
+      (car syms)
+    `(let ,(mapcar #'(lambda (s)
+                      `(,s (gensym)))
+                   syms)
+      ,@body)))
