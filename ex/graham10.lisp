@@ -1,6 +1,6 @@
 (defmacro nth-expr (n &rest exprs)
-  `(case (1- ,n)
-    ,@(let ((key -1))
+  `(case ,n
+    ,@(let ((key 0))
       (mapcar #'(lambda (expr)
                   `(,(incf key) ,expr))
               exprs))))
@@ -12,3 +12,4 @@
       (mapcar #'(lambda (expr)
                   `(,(incf key) ,expr))
               exprs))))
+
