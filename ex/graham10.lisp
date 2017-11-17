@@ -13,10 +13,6 @@
                   `(,(incf key) ,expr))
               exprs))))
 
-; (defmacro n-of (n &rest expr)
-;   )
-
-
 (defmacro n-of (n expr)
   (let ((counter (gensym))
         (stopsym (gensym))
