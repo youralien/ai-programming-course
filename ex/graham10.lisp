@@ -18,10 +18,10 @@
 
 
 (defmacro n-of (n expr)
-  (let ((g (gensym))
-        (h (gensym))
-        (i (gensym)))
-    `(let ((,h ,n))
-      (do ((,g 0 (1+ ,g))
-           (,i nil (cons ,expr ,i)))
-          ((>= ,g ,h) (reverse ,i))))))
+  (let ((counter (gensym))
+        (stopsym (gensym))
+        (accum (gensym)))
+    `(let ((,stopsym ,n))
+      (do ((,counter 0 (1+ ,counter))
+           (,accum nil (cons ,expr ,accum)))
+          ((>= ,counter ,stopsym) (reverse ,accum))))))
