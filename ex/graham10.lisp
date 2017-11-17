@@ -13,3 +13,15 @@
                   `(,(incf key) ,expr))
               exprs))))
 
+; (defmacro n-of (n &rest expr)
+;   )
+
+
+(defmacro n-of (n expr)
+  (let ((g (gensym))
+        (h (gensym))
+        (i (gensym)))
+    `(let ((,h ,n))
+      (do ((,g 0 (1+ ,g))
+           (,i nil (cons ,expr ,i)))
+          ((>= ,g ,h) (reverse ,i))))))
