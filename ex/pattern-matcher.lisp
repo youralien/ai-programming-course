@@ -68,33 +68,39 @@
 ; helpful subexp tester
 (defun car-subexp (y)
   (if (atom y)
-      y)
-    (mapcar #'(lambda (x)
-               (cond
-                 ((atom x) x)
-                 (t (cons x (car-subexp x)))))
-            y))
+      (list y)
+    (let ((accum nil))
+      (mapc #'(lambda (x)
+                 (cond
+                   ((atom x) (setq accum
+                                   (cons x accum)))
+                   (t (setq accum
+                            (append accum (list x) (car-subexp x))))))
+              y)
+      accum)))
 
 (defun cdr-subexp (y)
   (if (atom y)
-      y
-    (maplist #'(lambda (x)
+      (list y)
+    (let ((accum nil))
+      (mapl #'(lambda (x)
                 (cond
                   ((null (cdr x)) nil)
-                  (t x)))
-             y)))
+                  (t (push x accum))))
+            y)
+      accum)))
 
 
-(defun show-subexp (y)
-  (if (atom y)
-      y
-    (maplist #'(lambda (x)
-                (cond
-                  ((null (cdr x)) (car x))
-                  ((atom (car x)) (cons (car x) (list x)))
-                  (t (append (show-subexp (car x))
-                             x))))
-              y)))
+; (defun show-subexp (y)
+;   (if (atom y)
+;       y
+;     (maplist #'(lambda (x)
+;                 (cond
+;                   ((null (cdr x)) (car x))
+;                   ((atom (car x)) (cons (car x) (list x)))
+;                   (t (append (show-subexp (car x))
+;                              x))))
+;               y)))
 
 ; not working...
 ; (defun ?contains (x y lsts)
@@ -113,13 +119,21 @@
   
 (defun subexp (y)
   (cond
-    ((atom y) y)
-    (t (maplist #'(lambda (expr)
+    ((atom y) (list y))
+    (t (let ((accum nil))
+          (mapl #'(lambda (x)
                     (cond
-                      ((atom (car expr))
-                       (car expr))
-                      (t (subexp (car expr)))))
-                y))))
+                      ((null (cdr x))
+                       (push (car x) accum))
+                      ((atom (car x))
+                       (push (car x) accum)
+                       (push x accum))
+                      (t (setq accum
+                               (append (subexp (car x))
+                                       x
+                                       accum)))))
+                y)
+          accum))))
 
 ; attempt at reduce... getting super complex
 ; (defun ?contains (x y lsts)
