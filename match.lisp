@@ -36,7 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 (defpackage #:exmatch
   (:use #:common-lisp)
-  (:export #:match-p #:var-p #:? #:?* #:?? #:?= #:?and #:?or #:?not #:?contains #:subexp))
+  (:export #:match-p #:var-p #:? #:?* #:?? #:?= #:?and #:?or #:?not #:?contains #:subexp #:car-subexp #:cdr-subexp))
 
 (defpackage #:match-tests
   (:use #:common-lisp #:lisp-unit #:exmatch))

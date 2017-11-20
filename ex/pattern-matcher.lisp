@@ -66,6 +66,25 @@
             y)))
 
 ; helpful subexp tester
+(defun car-subexp (y)
+  (if (atom y)
+      y)
+    (mapcar #'(lambda (x)
+               (cond
+                 ((atom x) x)
+                 (t (cons x (car-subexp x)))))
+            y))
+
+(defun cdr-subexp (y)
+  (if (atom y)
+      y
+    (maplist #'(lambda (x)
+                (cond
+                  ((null (cdr x)) nil)
+                  (t x)))
+             y)))
+
+
 (defun show-subexp (y)
   (if (atom y)
       y
