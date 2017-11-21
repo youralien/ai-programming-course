@@ -38,58 +38,86 @@
 ;               (t (append (?contains x (car expr) lsts) total)))))
 ;         ((null expr) total))))
 
+; (defun ?contains (x y lsts)
+;   (if (atom y)
+;       (progn
+;         (format t "~Cmatch: ~A" #\linefeed (car (match-p (car x) y)))
+;         (car (match-p (car x) y)))
+;     (maplist
+;             #'(lambda (expr)
+;                 (cond
+;                   ((null (cdr expr))
+;                    (format t "~Ccontains: ~A" #\linefeed (?contains x (car expr) lsts))
+;                    ; (append (match-p (car x) expr))
+;                    ;         (?contains x (car expr) lsts))
+;                    ; (append (?contains x (car expr) lsts)
+;                    ;         (match-p (car x) expr)))
+;                    (?contains x (car expr) lsts))
+
+;                   ((atom (car expr))
+;                    ; (format t "~Cexpr: ~A" #\linefeed expr)
+;                    (append (match-p (car x) (car expr))
+;                            (match-p (car x) expr)))
+;                   (t (append (match-p (car x) expr)
+;                              (?contains x (car expr) lsts)))))
+
+;                   ; (t (append (?contains x (car expr) lsts)
+;                   ;            (match-p (car x) expr)))))
+;             y)))
+
+; new idea - ?contains (x y lsts) will reduce by calling
+; (?contains (car x) (cdr y)
+;            (?contains (car x) (car y) lsts)
+
 (defun ?contains (x y lsts)
-  (if (atom y)
-      (progn
-        (format t "~Cmatch: ~A" #\linefeed (car (match-p (car x) y)))
-        (car (match-p (car x) y)))
-    (maplist
-            #'(lambda (expr)
-                (cond
-                  ((null (cdr expr))
-                   (format t "~Ccontains: ~A" #\linefeed (?contains x (car expr) lsts))
-                   ; (append (match-p (car x) expr))
-                   ;         (?contains x (car expr) lsts))
-                   ; (append (?contains x (car expr) lsts)
-                   ;         (match-p (car x) expr)))
-                   (?contains x (car expr) lsts))
+  (cond ((atom y)
+         ; (format t "~C (x y lsts) ~A ~A ~A" #\linefeed x y lsts)
+         ; (format t "~C match ~A " #\linefeed (match-p (car x) y lsts))
+         (format t "~C dont be equal: ~A" #\linefeed (equal '(nil) lsts))
+         (if (equal '(nil) lsts)
+              (match-p (car x) y)
+            (append (match-p (car x) y) lsts)))
+        ; ^^^ WE DONT want match-p to have the blsts, since this is the disjunctive?
+        
+        
+        ; ((null (cdr y))
+        ;  (cond ((atom (car y))
+        ;         (?contains x (car y) lsts))
+        ;        (t (append (match-p (car x) y lsts)
+        ;                   (?contains x (car y) lsts)))))
+        (t
+          ; (format t "~C match nil: ~A" #\linefeed (match-p (car x) y lsts))
+          (append (match-p (car x) y lsts)
+                  (?contains x (cdr y)
+                            (?contains x (car y) lsts))))))
 
-                  ((atom (car expr))
-                   ; (format t "~Cexpr: ~A" #\linefeed expr)
-                   (append (match-p (car x) (car expr))
-                           (match-p (car x) expr)))
-                  (t (append (match-p (car x) expr)
-                             (?contains x (car expr) lsts)))))
-
-                  ; (t (append (?contains x (car expr) lsts)
-                  ;            (match-p (car x) expr)))))
-            y)))
-
-; helpful subexp tester
 (defun car-subexp (y)
-  (if (atom y)
-      (list y)
-    (let ((accum nil))
-      (mapc #'(lambda (x)
-                 (cond
-                   ((atom x) (setq accum
-                                   (cons x accum)))
-                   (t (setq accum
-                            (append accum (list x) (car-subexp x))))))
-              y)
-      accum)))
-
-(defun cdr-subexp (y)
-  (if (atom y)
-      (list y)
-    (let ((accum nil))
-      (mapl #'(lambda (x)
-                (cond
-                  ((null (cdr x)) nil)
-                  (t (push x accum))))
+  (let ((accum nil))
+    (mapc #'(lambda (x)
+               (cond
+                 ((atom x) (setq accum
+                                 (cons x accum)))
+                 (t (setq accum
+                          (append accum
+                                  (list x)
+                                  (car-subexp x))))))
             y)
-      accum)))
+    accum))
 
+; expects y to not be atom
+(defun cdr-subexp (y)
+  (let ((accum (if (null (cdr y)) (list y) nil)))
+    (mapl #'(lambda (x)
+              (cond
+                ((null (cdr x)) nil)
+                (t (push x accum))))
+          y)
+    accum))
+
+(defun subexp (y)
+  (if (atom y)
+      (list y)
+    (append (car-subexp y) (cdr-subexp y))))
 
 ; (defun show-subexp (y)
 ;   (if (atom y)
@@ -117,23 +145,22 @@
 ;                                (?contains x (car expr) lsts)))))
 ;              y))))
   
-(defun subexp (y)
-  (cond
-    ((atom y) (list y))
-    (t (let ((accum nil))
-          (mapl #'(lambda (x)
-                    (cond
-                      ((null (cdr x))
-                       (push (car x) accum))
-                      ((atom (car x))
-                       (push (car x) accum)
-                       (push x accum))
-                      (t (setq accum
-                               (append (subexp (car x))
-                                       x
-                                       accum)))))
-                y)
-          accum))))
+; passes 3 out of 3 but misses the '((a)) etc.
+; (defun subexp (y)
+;   (cond
+;     ((atom y) (list y))
+;     (t (let ((accum nil))
+;           (mapl #'(lambda (x)
+;                     (cond
+;                       ((null (cdr x)) (push (car x) accum))
+;                       ((atom (car x)) (push (car x) accum)
+;                                       (push x accum))
+;                       (t (setq accum
+;                                (append (subexp (car x))
+;                                        x
+;                                        accum)))))
+;                 y)
+;           accum))))
 
 ; attempt at reduce... getting super complex
 ; (defun ?contains (x y lsts)
