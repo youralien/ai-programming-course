@@ -96,11 +96,9 @@
 
 (defun ?contains (x y lsts)
   (cond ((atom y)
-         (if (equal '(nil) lsts)
-              (match-p (car x) y)
-            (if (null y)
-                lsts
-              (append (match-p (car x) y) lsts))))
+         (cond ((equal '(nil) lsts) (match-p (car x) y))
+               ((null y) lsts)
+               (t (append (match-p (car x) y) lsts))))
         (t (append (match-p (car x) y lsts)
                    (?contains x (cdr y)
                               (?contains x (car y) lsts))))))
