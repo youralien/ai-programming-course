@@ -69,27 +69,41 @@
 ; (?contains (car x) (cdr y)
 ;            (?contains (car x) (car y) lsts)
 
+
+; (defun ?contains (x y lsts)
+;   (cond ((atom y)
+;          ; (format t "~C (x y lsts) ~A ~A ~A" #\linefeed x y lsts)
+;          ; (format t "~C match ~A " #\linefeed (match-p (car x) y lsts))
+;          ; (format t "~C dont be equal: ~A" #\linefeed (equal '(nil) lsts))
+;          (if (equal '(nil) lsts)
+;               (match-p (car x) y)
+;             (if (null y)
+;                 lsts
+;               (append (match-p (car x) y) lsts))))
+;         ; ^^^ WE DONT want match-p to have the blsts, since this is the disjunctive?
+;         ; so don't do (match-p (car x) y lsts)
+        
+;         ; ((null (cdr y))
+;         ;  (cond ((atom (car y))
+;         ;         (?contains x (car y) lsts))
+;         ;        (t (append (match-p (car x) y lsts)
+;         ;                   (?contains x (car y) lsts)))))
+;         (t
+;           ; (format t "~C match nil: ~A" #\linefeed (match-p (car x) y lsts))
+;           (append (match-p (car x) y lsts)
+;                   (?contains x (cdr y)
+;                             (?contains x (car y) lsts))))))
+
 (defun ?contains (x y lsts)
   (cond ((atom y)
-         ; (format t "~C (x y lsts) ~A ~A ~A" #\linefeed x y lsts)
-         ; (format t "~C match ~A " #\linefeed (match-p (car x) y lsts))
-         (format t "~C dont be equal: ~A" #\linefeed (equal '(nil) lsts))
          (if (equal '(nil) lsts)
               (match-p (car x) y)
-            (append (match-p (car x) y) lsts)))
-        ; ^^^ WE DONT want match-p to have the blsts, since this is the disjunctive?
-        
-        
-        ; ((null (cdr y))
-        ;  (cond ((atom (car y))
-        ;         (?contains x (car y) lsts))
-        ;        (t (append (match-p (car x) y lsts)
-        ;                   (?contains x (car y) lsts)))))
-        (t
-          ; (format t "~C match nil: ~A" #\linefeed (match-p (car x) y lsts))
-          (append (match-p (car x) y lsts)
-                  (?contains x (cdr y)
-                            (?contains x (car y) lsts))))))
+            (if (null y)
+                lsts
+              (append (match-p (car x) y) lsts))))
+        (t (append (match-p (car x) y lsts)
+                   (?contains x (cdr y)
+                              (?contains x (car y) lsts))))))
 
 (defun car-subexp (y)
   (let ((accum nil))
