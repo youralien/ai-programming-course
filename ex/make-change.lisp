@@ -1,3 +1,13 @@
+(defun make-change (val &optional (coins '(25 10 5 1)))
+  (values-list (make-change-as-list val coins)))
+
+(defun make-change-as-list (val coins)
+  (cond
+    ((null coins) nil)
+    (t (multiple-value-bind (quotient remainder)
+            (floor val (car coins))
+          (cons quotient (make-change-as-list remainder (cdr coins)))))))
+
 
 ; some doesn't return the index, so maybe not useful
 ; I could imagine making a hash table to store the indexes
