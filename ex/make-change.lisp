@@ -1,9 +1,10 @@
+
 ; some doesn't return the index, so maybe not useful
 ; I could imagine making a hash table to store the indexes
 ; of each of the coins.  Then using some, I could find the remainder,
 ; keep a tally of the index, and recurse solving make-change for the
 ; the remaining val
-(defun make-change (val &optional (coins '(25 10 5 1)))
+(defun make-best-change (val &optional (coins '(25 10 5 1)))
   (let ((coin-usage-ht (make-hash-table :size (length coins))))
     (dolist (coin coins)
       (setf (gethash coin coin-usage-ht) 0))
