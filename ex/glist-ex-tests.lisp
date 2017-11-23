@@ -27,6 +27,11 @@
   (assert-equal nil (gnth 10 (delay '(a b c))))
   )
 
+(defun gmap (fn glist)
+  (cond ((gnull glist) glist)
+        (t (cons (funcall fn (gcar glist))
+                 (delay (gmap fn (gcdr glist)))))))
+
 (define-test gmap
   (assert-equal nil (gextract (gmap #'1+ nil)))
   (assert-equal '(2 3 4 5) (gextract (gmap #'1+ (gintegers 1)) 4))
