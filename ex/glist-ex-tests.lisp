@@ -17,12 +17,16 @@
       (gcons start (grange (1+ start) end))
     (error "end ~S of GRANGE reached" end)))
 
+(defun gnth (n glist)
+  (cond ((= n 0) (gcar glist))
+        (t (gnth (1- n) (gcdr glist)))))
+
 (define-test gnth
   (assert-equal 1 (gnth 0 (grange 1 2)))
   (assert-equal 5 (gnth 4 (grange 1 6)))
   (assert-equal nil (gnth 10 (delay '(a b c))))
   )
-  
+
 (define-test gmap
   (assert-equal nil (gextract (gmap #'1+ nil)))
   (assert-equal '(2 3 4 5) (gextract (gmap #'1+ (gintegers 1)) 4))
