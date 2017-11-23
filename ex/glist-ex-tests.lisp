@@ -29,8 +29,8 @@
 
 (defun gmap (fn glist)
   (cond ((gnull glist) glist)
-        (t (cons (funcall fn (gcar glist))
-                 (delay (gmap fn (gcdr glist)))))))
+        (t (gcons (funcall fn (gcar glist))
+                  (gmap fn (gcdr glist))))))
 
 (define-test gmap
   (assert-equal nil (gextract (gmap #'1+ nil)))
