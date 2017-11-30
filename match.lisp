@@ -211,7 +211,7 @@ OTHER DEALINGS IN THE SOFTWARE.
          (funcall (car x) (cdr x) y lsts))
         ((atom y) nil)
         (t (match-p (cdr x) (cdr y)
-                    (match-p (car x) (car y) lsts)))))
+                    (match-p (car x) (car y) lsts)))) )
 
 (defun var-p (x)
   (and (symbolp x) 
