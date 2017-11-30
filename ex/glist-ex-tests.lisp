@@ -39,6 +39,13 @@
   (assert-true (gnull (gmap #'1+ (delay nil))))
   )
 
+(defun gfilter (fn glist)
+  (cond
+    ((gnull glist) nil)
+    ((funcall fn (gcar glist)) (gcons (gcar glist)
+                                      (gfilter fn (gcdr glist))))
+    (t (gfilter fn (gcdr glist)))))
+
 (define-test gfilter
   (assert-equal nil (gextract (gfilter #'1+ nil)))
   (assert-equal '(1 3 5) (gextract (gfilter #'oddp (grange 1 6)) 3))
