@@ -103,9 +103,14 @@
            (setf coin-count foo)
            (setf last-coin-used coin)
            (format t "foo: ~A coin-count: ~A last-coin-used: ~A ~C" foo coin-count last-coin-used #\linefeed)))))
-    (unless (null (car valid-coins))
+    ; (make-best-change 32 '(11 7)) succeeds when this line is commented out
+    ; (MAKE-BEST-CHANGE 11 '(7 3)) fails when this line is commented out
+    ; (MAKE-BEST-CHANGE 88 '(23 13 5)) fails no matter
+    ; only if there are valid-coins
+    ; (i.e. coins who's value is lessor or equal to the current cents) do set do the setf's
+    ; (unless (null (car valid-coins))
       (setf (svref min-coins-table cents) coin-count)
-      (setf (svref last-coin-used-table cents) last-coin-used))))
+      (setf (svref last-coin-used-table cents) last-coin-used)))
 
 ; attempt at just doing a recursive make-best change one, leading towards memoization
 (defun main (val &optional (coins '(25 10 5 1)))
