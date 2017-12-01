@@ -77,32 +77,32 @@
   ; val is the remaining value to make change from
   ; min-coins is an alist of the number of coins needed to make each value
   (do* ((cents 1 (1+ cents))
-       (valid-coins (make-valid-coins cents coins)
-                    (make-valid-coins cents coins))
-       (coin-count cents cents)
-       (exact-match nil nil)
-       (last-coin-used (smallest-coin coins) (smallest-coin coins))
-       (min-coins-table (make-array (1+ val) :initial-element 0)) ; nth element -> n cents
-       (exact-match-table (make-exact-match-table val)) ; nth element -> n cents
-       (last-coin-used-table (make-array (1+ val) :initial-element 0))) ; nth-element -> n cents
-      ((> cents val) (values min-coins-table last-coin-used-table exact-match-table))    
-    (dolist (coin valid-coins)
+        (min-coins-table (make-array (1+ val) :initial-element 0)) ; nth element -> n cents
+        (exact-match-table (make-exact-match-table val)) ; nth element -> n cents
+        (last-coin-used-table (make-array (1+ val) :initial-element 0))) ; nth-element -> n cents
+       ((> cents val) (values min-coins-table last-coin-used-table exact-match-table))
+    (do ((valid-coins (make-valid-coins cents coins)
+                      (cdr valid-coins))
+         (coin-count cents)
+         (exact-match nil)
+         (last-coin-used (smallest-coin coins)))
+        ((null valid-coins)
+         (setf (svref exact-match-table cents) exact-match)
+         (setf (svref min-coins-table cents) coin-count)
+         (setf (svref last-coin-used-table cents) last-coin-used))
       (let ((this-coin-exact-match
-              (svref exact-match-table (- cents coin)))
+              (svref exact-match-table (- cents (car valid-coins))))
             (this-coin-least-coin-count
-              (< (1+ (svref min-coins-table (- cents coin))) coin-count)))
+              (< (1+ (svref min-coins-table (- cents (car valid-coins)))) coin-count)))
         (cond
           ((or (and this-coin-exact-match (null exact-match))
                (and this-coin-exact-match exact-match this-coin-least-coin-count))
            (setf exact-match t)
-           (setf coin-count (1+ (svref min-coins-table (- cents coin))))
-           (setf last-coin-used coin))
+           (setf coin-count (1+ (svref min-coins-table (- cents (car valid-coins)))))
+           (setf last-coin-used (car valid-coins)))
           (this-coin-least-coin-count
-           (setf coin-count (1+ (svref min-coins-table (- cents coin))))
-           (setf last-coin-used coin)))))
-    (setf (svref exact-match-table cents) exact-match)
-    (setf (svref min-coins-table cents) coin-count)
-    (setf (svref last-coin-used-table cents) last-coin-used)))
+           (setf coin-count (1+ (svref min-coins-table (- cents (car valid-coins)))))
+           (setf last-coin-used (car valid-coins))))))))
 
 (run-tests make-best-change)
 
