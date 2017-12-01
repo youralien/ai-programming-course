@@ -49,7 +49,7 @@
         (dolist (coin coins)
           (setf (gethash coin coin-usage-ht) 0))
         (do* ((change val (- change (svref last-coin-used-table change))))
-             ((or (< change (car (reverse coins)))
+             ((or (< change (smallest-coin coins))
                   (null (gethash (svref last-coin-used-table change) coin-usage-ht)))
               (print "IVE ARRIVED")
               (values-list
@@ -69,6 +69,9 @@
           ; (print (- change (svref last-coin-used-table change)))
           ))))
 
+(defun smallest-coin (coins)
+  (car (reverse coins)))
+
 ; (defun sub-and-rec (val min-coins-table last-coins-used-table coin-usage-hts)
 ;   (cond
 ;     (null val)))
@@ -82,7 +85,7 @@
                                        (list c)
                                       nil))
                                 coins))
-       (last-coin-used (car (reverse coins)) (car (reverse coins)))
+       (last-coin-used (smallest-coin coins) (smallest-coin coins))
        ; (last-coin-used -1 -1)
        (coin-count cents cents)
        (min-coins-table (make-array (1+ val) :initial-element 0)) ; nth element -> n cents
@@ -144,6 +147,8 @@
     ; (unless (null (car valid-coins))
       (setf (svref min-coins-table cents) coin-count)
       (setf (svref last-coin-used-table cents) last-coin-used)))
+
+(run-tests make-best-change)
 
 ; attempt at just doing a recursive make-best change one, leading towards memoization
 (defun main (val &optional (coins '(25 10 5 1)))
