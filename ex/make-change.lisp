@@ -85,24 +85,37 @@
                       (cdr valid-coins))
          (coin-count cents)
          (exact-match nil)
-         (last-coin-used (smallest-coin coins)))
+         (last-coin-used (smallest-coin coins))
+        )
         ((null valid-coins)
          (setf (svref exact-match-table cents) exact-match)
          (setf (svref min-coins-table cents) coin-count)
          (setf (svref last-coin-used-table cents) last-coin-used))
+      ; rebuttal on using setf inside a DO loop:
+      
+      ; related - rebuttal on using LET instead of DO var init/update
+      ; imagine the case where we define the vars inside the LET up top in the do var init/update.
+      ; we run into issues here:
+      ; 1) we don't want to execute (car valid-coins) if there are no valid coins.
+      ;    The end condition of the DO protects us against this, by putting the LET in the body
+      ;    We'd have to check for (null valid-coins) in multiple places in the other case
+      ; This is related to using SETF inside a DO because these vars, this-coin-exact-match
+      ; and this-coin-least-coin-count are used as the conditions for using SETF.
+      ; Had we incorporated the variable updates of exact-match, coin-coint, and last-coin-used
+      ; in the DO, we'd run into the same problem described regarding usage of the LET.
       (let ((this-coin-exact-match
               (svref exact-match-table (- cents (car valid-coins))))
             (this-coin-least-coin-count
               (< (1+ (svref min-coins-table (- cents (car valid-coins)))) coin-count)))
-        (cond
-          ((or (and this-coin-exact-match (null exact-match))
+        
+        (when (or (and this-coin-exact-match (null exact-match))
                (and this-coin-exact-match exact-match this-coin-least-coin-count))
            (setf exact-match t)
            (setf coin-count (1+ (svref min-coins-table (- cents (car valid-coins)))))
            (setf last-coin-used (car valid-coins)))
-          (this-coin-least-coin-count
+        (when this-coin-least-coin-count
            (setf coin-count (1+ (svref min-coins-table (- cents (car valid-coins)))))
-           (setf last-coin-used (car valid-coins))))))))
+           (setf last-coin-used (car valid-coins)))))))
 
 (run-tests make-best-change)
 
