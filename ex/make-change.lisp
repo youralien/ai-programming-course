@@ -70,19 +70,22 @@
     (setf (svref table 0) t)  ; base case for representing exact change.  0 cents can be represented exactly.
     table))
 
+(defun make-valid-coins (cents coins)
+  (mapcan #'(lambda (c) (if (>= cents c) (list c) nil)) coins))
+
 (defun dp-make-change (val &optional (coins '(25 10 5 1)))
   ; val is the remaining value to make change from
   ; min-coins is an alist of the number of coins needed to make each value
   (do* ((cents 1 (1+ cents))
-       (valid-coins (mapcan #'(lambda (c) (if (>= cents c) (list c) nil)) coins)
-                    (mapcan #'(lambda (c) (if (>= cents c) (list c) nil)) coins))
+       (valid-coins (make-valid-coins cents coins)
+                    (make-valid-coins cents coins))
        (coin-count cents cents)
        (exact-match nil nil)
        (last-coin-used (smallest-coin coins) (smallest-coin coins))
        (min-coins-table (make-array (1+ val) :initial-element 0)) ; nth element -> n cents
        (exact-match-table (make-exact-match-table val)) ; nth element -> n cents
        (last-coin-used-table (make-array (1+ val) :initial-element 0))) ; nth-element -> n cents
-      ((> cents val) (values min-coins-table last-coin-used-table exact-match-table))
+      ((> cents val) (values min-coins-table last-coin-used-table exact-match-table))    
     (dolist (coin valid-coins)
       (let ((this-coin-exact-match
               (svref exact-match-table (- cents coin)))
@@ -97,9 +100,9 @@
           (this-coin-least-coin-count
            (setf coin-count (1+ (svref min-coins-table (- cents coin))))
            (setf last-coin-used coin)))))
-      (setf (svref exact-match-table cents) exact-match)
-      (setf (svref min-coins-table cents) coin-count)
-      (setf (svref last-coin-used-table cents) last-coin-used)))
+    (setf (svref exact-match-table cents) exact-match)
+    (setf (svref min-coins-table cents) coin-count)
+    (setf (svref last-coin-used-table cents) last-coin-used)))
 
 (run-tests make-best-change)
 
