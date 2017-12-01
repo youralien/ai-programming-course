@@ -2,8 +2,8 @@
 ;;; Word Trie Tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defpackage trie-tests
-  (:use :common-lisp trie lisp-unit))
+(defpackage #:trie-tests
+  (:use #:common-lisp #:trie #:lisp-unit))
 
 ;;  2014-10-16 updated calls to ASSERT-EQUALITY
 ;;; 2010-11-02 changed MAPC-TRIE test to UNORDERED-EQUAL
@@ -11,7 +11,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(in-package trie-tests)
+(in-package #:trie-tests)
 
 (defvar *trie* nil)
 
