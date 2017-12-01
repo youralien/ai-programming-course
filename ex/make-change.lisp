@@ -102,6 +102,9 @@
           ((< (1+ (svref min-coins-table (- cents coin))) coin-count) ; weird...
            ; 1 + (number of coins from remaining cents, had you used this coin)
            ; or just 1 if the coin can't be used.
+           ; so since we are using the number of coins used to make the remaining cents, you NEED the 4 cents place to be made up 
+           ; of one coin.  Otherwise, you will just think that you can make 14 cents with 11 cents, and you are done cuz
+           ; that's one coin vs. two 7 cent pieces.  so inherently, we need to drop the (unless condition below)
            (when (= cents 14)
              (format t "tmp-coin-count: ~A coin-count: ~A last-coin-used: ~A ~C"
                      (1+ (svref min-coins-table (- cents coin))) coin-count last-coin-used #\linefeed))
@@ -127,12 +130,19 @@
     ; #(0 1 2 3 4 5 6 1 2 3 4 1  2  3  2 3 4 5 2  3  4  3 2  3  4  3  4  5  4 3  4  5  4) 
     ; #(7 7 7 7 7 7 7 7 7 7 7 11 11 11 7 7 7 7 11 11 11 7 11 11 11 11 11 11 7 11 11 11 11) 
     ; you can see that for 0 - 6, it doesn't make sense that a 6 can be made up of 6 coins.
+    ; that's okay, as noted in this explanation:
+           ; (< (1+ (svref min-coins-table (- cents coin))) coin-count)
+           ; 1 + (number of coins from remaining cents, had you used this coin)
+           ; or just 1 if the coin can't be used.
+           ; so since we are using the number of coins used to make the remaining cents, you NEED the 4 cents place to be made up 
+           ; of one coin.  Otherwise, you will just think that you can make 14 cents with 11 cents, and you are done cuz
+           ; that's one coin vs. two 7 cent pieces.  so inherently, we need to drop the (unless condition below)
     
     ; only if there are valid-coins
     ; (i.e. coins who's value is lessor or equal to the current cents) do set do the setf's
-    (unless (null (car valid-coins))
+    ; (unless (null (car valid-coins))
       (setf (svref min-coins-table cents) coin-count)
-      (setf (svref last-coin-used-table cents) last-coin-used))))
+      (setf (svref last-coin-used-table cents) last-coin-used)))
 
 ; attempt at just doing a recursive make-best change one, leading towards memoization
 (defun main (val &optional (coins '(25 10 5 1)))
