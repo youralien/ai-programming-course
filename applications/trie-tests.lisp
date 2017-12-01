@@ -24,7 +24,7 @@
 
 (defun add-words (words trie)
   (dolist (word words trie)
-    (add-word word trie)))
+    (setq trie (add-word word trie))))
 
 (define-test subtrie
     (assert-false (subtrie (make-trie) #\a))

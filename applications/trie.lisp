@@ -19,7 +19,8 @@
   (let* ((lower (string-downcase str))
          (stream (make-string-input-stream lower)))
     (let ((c (read-char stream nil :eow)))
-      (acons c (add-word-from-stream stream (make-trie)) trie))))
+      (setq trie (acons c (add-word-from-stream stream (make-trie)) trie))))
+  trie)
 
 (defun add-word-from-stream (stream trie)
   (let ((c (read-char stream nil :eow)))
@@ -28,7 +29,14 @@
       (acons c (add-word-from-stream stream (make-trie)) trie))))
 
 (defun subtrie (trie &rest chars)
-  nil)
+  ; (print "trie: ")
+  ; (print trie)
+  ; (print "char1: ")
+  ; (print (car chars))
+  ; (print "does the trie have this?: ")
+  ; (print (assoc (car chars) trie))
+  (cond ((null (car chars)) trie)
+        (t (assoc (car chars) trie))))
 
 ; (defun add-word (str trie)
 ;   (let ((s (make-string-input-stream str)))
