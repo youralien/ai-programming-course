@@ -39,41 +39,21 @@
          (subtract-and-record (- val use-coin)
                               coins
                               coin-usage-ht)))))
-(defvar *min-coins-table* nil)
-(defvar *last-coin-used-table* nil)
 
 (defun make-best-change (val &optional (coins '(25 10 5 1)))
   (multiple-value-bind (min-coins-table last-coin-used-table exact-match-table)
                        (dp-make-change val coins)
-      ; (print min-coins-table)
-      ; (print last-coin-used-table)
-      ; (print exact-match-table)
-      ; (setf *min-coins-table* min-coins-table)
-      ; (setf *last-coin-used-table* last-coin-used-table)
       (let ((coin-usage-ht (make-hash-table :size (length coins))))
         (dolist (coin coins)
           (setf (gethash coin coin-usage-ht) 0))
         (do* ((change val (- change (svref last-coin-used-table change))))
              ((or (< change (smallest-coin coins))
                   (null (gethash (svref last-coin-used-table change) coin-usage-ht)))
-              ; (print "IVE ARRIVED")
               (values-list
                 (mapcar #'(lambda (coin)
                             (gethash coin coin-usage-ht))
                         coins)))
-          ; (print "before gethash")
-          ; (print "(svref last-coin-used-table change)")
-          ; (print (svref last-coin-used-table change))
-          (incf (gethash (svref last-coin-used-table change) coin-usage-ht))
-          ; (print change)
-          ; (print "used")
-          ; (print (svref last-coin-used-table change))
-          ; (print "how many times? ")
-          ; (print "once")
-          ; (print "nextchange")
-          ; (print (- change (svref last-coin-used-table change)))
-          ))))
-
+          (incf (gethash (svref last-coin-used-table change) coin-usage-ht))))))
 
 (defun smallest-coin (coins)
   (car (reverse coins)))
@@ -86,9 +66,9 @@
     (setf (svref table 0) t)  ; base case for representing exact change.  0 cents can be represented exactly.
     table))
 
-; val is the remaining value to make change from
-; min-coins is an alist of the number of coins needed to make each value
 (defun dp-make-change (val &optional (coins '(25 10 5 1)))
+  ; val is the remaining value to make change from
+  ; min-coins is an alist of the number of coins needed to make each value
   (do* ((cents 1 (1+ cents))
        (valid-coins (mapcan #'(lambda (c) (if (>= cents c) (list c) nil)) coins)
                     (mapcan #'(lambda (c) (if (>= cents c) (list c) nil)) coins))
@@ -99,90 +79,25 @@
        (exact-match-table (make-exact-match-table val)) ; nth element -> n cents
        (last-coin-used-table (make-array (1+ val) :initial-element 0))) ; nth-element -> n cents
       ((> cents val) (values min-coins-table last-coin-used-table exact-match-table))
-    ; (print cents)
-    ; (print valid-coins)
-    ; (print last-coin-used)
-    ; (print min-coins-table)
-    ; (print last-coin-used-table)
-    ; (print "----------")
     (dolist (coin valid-coins)
-      ; (let ((foo (or (and (plusp (- cents coin))
-      ;                     (1+ (svref min-coins-table (- cents coin))))
-      ;                1)))
       (let ((this-coin-exact-match
               (svref exact-match-table (- cents coin)))
             (this-coin-least-coin-count
               (< (1+ (svref min-coins-table (- cents coin))) coin-count)))
-        (when this-coin-exact-match
-          (format t "this-coin-exact-match: ~A~C" this-coin-exact-match #\linefeed))
-        (when this-coin-least-coin-count
-          (format t "this-coin-least-coin-count: ~A~C" this-coin-least-coin-count #\linefeed))
         (cond
           ((or (and this-coin-exact-match (null exact-match))
                (and this-coin-exact-match exact-match this-coin-least-coin-count))
-           (format t "cents: ~A  has exact match~C" cents #\linefeed)
            (setf exact-match t)
            (setf coin-count (1+ (svref min-coins-table (- cents coin))))
            (setf last-coin-used coin))
-          ; we would prefer exact match!  exact match with more coins is preferred over not exact with less coins
- 
-          ; if (less coins)
-          ;    if (dont have exact match)
-          ;       if (this one is exact)
-          ; ((> coin cents) (print "does (> coin cents) ever happen? I guess so") nil)
-          ; ((= 1 (svref exact-match-table (- cents coin)))
-          ;  ; (print "exact change mofo")
           (this-coin-least-coin-count
-          ; ((< (1+ (svref min-coins-table (- cents coin))) coin-count) ; weird...
-           ; 1 + (number of coins from remaining cents, had you used this coin)
-           ; or just 1 if the coin can't be used.
-           ; so since we are using the number of coins used to make the remaining cents, you NEED the 4 cents place to be made up 
-           ; of one coin.  Otherwise, you will just think that you can make 14 cents with 11 cents, and you are done cuz
-           ; that's one coin vs. two 7 cent pieces.  so inherently, we need to drop the (unless condition below)
-           ; (when (= cents 14)
-           ;   (format t "tmp-coin-count: ~A coin-count: ~A last-coin-used: ~A ~C"
-           ;           (1+ (svref min-coins-table (- cents coin))) coin-count last-coin-used #\linefeed))
            (setf coin-count (1+ (svref min-coins-table (- cents coin))))
-           (setf last-coin-used coin)
-           ; (when (= cents 14)
-           ;   (format t "tmp-coin-count: ~A coin-count: ~A last-coin-used: ~A ~C"
-           ;           (1+ (svref min-coins-table (- cents coin))) coin-count last-coin-used #\linefeed)))
-          ))))
-    ; observations
-    ; (make-best-change 32 '(11 7)) succeeds when this line is commented out
-    ; (MAKE-BEST-CHANGE 11 '(7 3)) fails when this line is commented out
-    ; (MAKE-BEST-CHANGE 88 '(23 13 5)) fails no matter
-    ; the dp tables turn out differently with this line commented
-    ; compare when we try to control for the case where there is no valid coin
-    ; #(0 0 0 0 0 0 0 1 1 1 1 1  1  1  1  1  1  1  2  2  2  2  2  2  2  2  2  2  2  3  3  3  3) 
-    ; #(0 0 0 0 0 0 0 7 7 7 7 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11)
-    ; it makes more sense that not until 7 cents can we use one coin to represent.
-    ; or that 8 cents is really represented by a 7 cent coin only too.
-    ; but it really misses out on factors of 7, like 14, which is represented by one 11?! not two 7's? That's hellish...
-    
-    ; and then when we dont
-    ; #(0 1 2 3 4 5 6 1 2 3 4 1  2  3  2 3 4 5 2  3  4  3 2  3  4  3  4  5  4 3  4  5  4) 
-    ; #(7 7 7 7 7 7 7 7 7 7 7 11 11 11 7 7 7 7 11 11 11 7 11 11 11 11 11 11 7 11 11 11 11) 
-    ; you can see that for 0 - 6, it doesn't make sense that a 6 can be made up of 6 coins.
-    ; that's okay, as noted in this explanation:
-           ; (< (1+ (svref min-coins-table (- cents coin))) coin-count)
-           ; 1 + (number of coins from remaining cents, had you used this coin)
-           ; or just 1 if the coin can't be used.
-           ; so since we are using the number of coins used to make the remaining cents, you NEED the 4 cents place to be made up 
-           ; of one coin.  Otherwise, you will just think that you can make 14 cents with 11 cents, and you are done cuz
-           ; that's one coin vs. two 7 cent pieces.  so inherently, we need to drop the (unless condition below)
-    
-    ; only if there are valid-coins
-    ; (i.e. coins who's value is lessor or equal to the current cents) do set do the setf's
-    ; (unless (null (car valid-coins))
+           (setf last-coin-used coin)))))
       (setf (svref exact-match-table cents) exact-match)
       (setf (svref min-coins-table cents) coin-count)
       (setf (svref last-coin-used-table cents) last-coin-used)))
 
 (run-tests make-best-change)
-; (MAKE-BEST-CHANGE 88 '(23 13 5))
-; (print (MAKE-BEST-CHANGE 11 '(7 3)))
-; (make-best-change 32 '(11 7))
 
 ; attempt at just doing a recursive make-best change one, leading towards memoization
 (defun main (val &optional (coins '(25 10 5 1)))
