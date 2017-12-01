@@ -35,9 +35,12 @@
 ;       ; todo: not changing trie; it's not aliasing and binding like I want.
 ;       ; (print node))))
 
+(defvar *trie* (main))
+
 (defun main()
-  (let* ((*trie* (make-trie))
-         (*out* (add-word "hello" *trie*)))
-    (print (assoc #\h *trie*))))
+  (let* ((trie (make-trie))
+         (out (add-word "hello" trie)))
+    (print (assoc #\h out))
+    out))
     
     
