@@ -93,24 +93,46 @@
     ; (print min-coins-table)
     ; (print last-coin-used-table)
     ; (print "----------")
-    (dolist (coin valid-coins)
-      (let ((foo (or (and (plusp (- cents coin))
-                          (1+ (svref min-coins-table (- cents coin))))
-                     1)))
+    (dolist (coin (reverse valid-coins))
+      ; (let ((foo (or (and (plusp (- cents coin))
+      ;                     (1+ (svref min-coins-table (- cents coin))))
+      ;                1)))
         (cond
-          ((< foo coin-count)
-           (format t "foo: ~A coin-count: ~A last-coin-used: ~A ~C" foo coin-count last-coin-used #\linefeed)
-           (setf coin-count foo)
+          ((> coin cents) nil)
+          ((< (1+ (svref min-coins-table (- cents coin))) coin-count) ; weird...
+           ; 1 + (number of coins from remaining cents, had you used this coin)
+           ; or just 1 if the coin can't be used.
+           (when (= cents 14)
+             (format t "tmp-coin-count: ~A coin-count: ~A last-coin-used: ~A ~C"
+                     (1+ (svref min-coins-table (- cents coin))) coin-count last-coin-used #\linefeed))
+           (setf coin-count (1+ (svref min-coins-table (- cents coin))))
            (setf last-coin-used coin)
-           (format t "foo: ~A coin-count: ~A last-coin-used: ~A ~C" foo coin-count last-coin-used #\linefeed)))))
+           (when (= cents 14)
+             (format t "tmp-coin-count: ~A coin-count: ~A last-coin-used: ~A ~C"
+                     (1+ (svref min-coins-table (- cents coin))) coin-count last-coin-used #\linefeed)))
+          ))
+    ; observations
     ; (make-best-change 32 '(11 7)) succeeds when this line is commented out
     ; (MAKE-BEST-CHANGE 11 '(7 3)) fails when this line is commented out
     ; (MAKE-BEST-CHANGE 88 '(23 13 5)) fails no matter
+    ; the dp tables turn out differently with this line commented
+    ; compare when we try to control for the case where there is no valid coin
+    ; #(0 0 0 0 0 0 0 1 1 1 1 1  1  1  1  1  1  1  2  2  2  2  2  2  2  2  2  2  2  3  3  3  3) 
+    ; #(0 0 0 0 0 0 0 7 7 7 7 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11)
+    ; it makes more sense that not until 7 cents can we use one coin to represent.
+    ; or that 8 cents is really represented by a 7 cent coin only too.
+    ; but it really misses out on factors of 7, like 14, which is represented by one 11?! not two 7's? That's hellish...
+    
+    ; and then when we dont
+    ; #(0 1 2 3 4 5 6 1 2 3 4 1  2  3  2 3 4 5 2  3  4  3 2  3  4  3  4  5  4 3  4  5  4) 
+    ; #(7 7 7 7 7 7 7 7 7 7 7 11 11 11 7 7 7 7 11 11 11 7 11 11 11 11 11 11 7 11 11 11 11) 
+    ; you can see that for 0 - 6, it doesn't make sense that a 6 can be made up of 6 coins.
+    
     ; only if there are valid-coins
     ; (i.e. coins who's value is lessor or equal to the current cents) do set do the setf's
-    ; (unless (null (car valid-coins))
+    (unless (null (car valid-coins))
       (setf (svref min-coins-table cents) coin-count)
-      (setf (svref last-coin-used-table cents) last-coin-used)))
+      (setf (svref last-coin-used-table cents) last-coin-used))))
 
 ; attempt at just doing a recursive make-best change one, leading towards memoization
 (defun main (val &optional (coins '(25 10 5 1)))
