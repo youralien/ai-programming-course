@@ -41,22 +41,64 @@
                               coin-usage-ht)))))
 
 (defun make-best-change (val &optional (coins '(25 10 5 1)))
-  )
+  (multiple-value-bind (min-coins-table last-coin-used-table)
+                       (dp-make-change val coins)
+      
+      (let ((coin-usage-ht (make-hash-table :size (length coins))))
+        (dolist (coin coins)
+          (setf (gethash coin coin-usage-ht) 0))
+        (do* ((change val (- change last-coin))
+              (last-coin (svref last-coin-used-table change)
+                         (svref last-coin-used-table change)))
+             ((= change 0)
+              (values-list
+                (mapcar #'(lambda (coin)
+                            (gethash coin coin-usage-ht))
+                        coins)))
+          (incf (gethash last-coin coin-usage-ht))
+          (print change)
+          (print "used")
+          (print last-coin)
+          (print "how many times? ")
+          (print "once")))))  
 
+; (defun sub-and-rec (val min-coins-table last-coins-used-table coin-usage-hts)
+;   (cond
+;     (null val)))
 
 ; val is the remaining value to make change from
 ; min-coins is an alist of the number of coins needed to make each value
 (defun dp-make-change (val &optional (coins '(25 10 5 1)))
-  (do ((cents 0 (1+ cents))
+  (do* ((cents 0 (1+ cents))
        (valid-coins nil (mapcan #'(lambda (c)
-                                   (if (>= val c)
+                                   (if (>= cents c)
                                        (list c)
                                       nil))
-                                coins)))
-      ((> cents val))
-    (print cents)
-    (print valid-coins)))
-      
+                                coins))
+       (last-coin-used (car (reverse coins)) (car (reverse coins)))
+       ; (last-coin-used -1 -1)
+       (coin-count cents cents)
+       (min-coins-table (make-array (1+ val) :initial-element 0)) ; nth element -> n cents
+       (last-coin-used-table (make-array (1+ val) :initial-element 0))) ; nth-element -> n cents
+      ((> cents val) (values min-coins-table last-coin-used-table))
+    ; (print cents)
+    ; (print valid-coins)
+    ; (print last-coin-used)
+    ; (print min-coins-table)
+    ; (print last-coin-used-table)
+    ; (print "----------")
+    (dolist (coin valid-coins)
+      (let ((foo (or (and (plusp (- cents coin))
+                          (1+ (svref min-coins-table (- cents coin))))
+                     1)))
+        (cond
+          ((< foo coin-count)
+           ; (format t "foo: ~A coin-count: ~A last-coin-used: ~A ~C" foo coin-count last-coin-used #\linefeed)
+           (setf coin-count foo)
+           (setf last-coin-used coin)))))
+           ; (format t "foo: ~A coin-count: ~A last-coin-used: ~A ~C" foo coin-count last-coin-used #\linefeed)))))
+    (setf (svref min-coins-table cents) coin-count)
+    (setf (svref last-coin-used-table cents) last-coin-used)))
 
 ; attempt at just doing a recursive make-best change one, leading towards memoization
 (defun main (val &optional (coins '(25 10 5 1)))
