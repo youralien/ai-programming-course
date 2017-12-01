@@ -73,6 +73,9 @@
 (defun make-valid-coins (cents coins)
   (mapcan #'(lambda (c) (if (>= cents c) (list c) nil)) coins))
 
+
+; thank you for teaching me my first dynamic programming solution:
+; http://interactivepython.org/runestone/static/pythonds/Recursion/DynamicProgramming.html#lst-change1
 (defun dp-make-change (val &optional (coins '(25 10 5 1)))
   ; val is the remaining value to make change from
   ; min-coins is an alist of the number of coins needed to make each value
