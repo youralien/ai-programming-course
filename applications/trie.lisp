@@ -13,6 +13,8 @@
 
 (in-package #:trie)
 
+(defconstant maxword 100)
+
 (defun make-trie ()
   nil)
 
@@ -74,7 +76,9 @@
 
 (defun read-words (file trie)
   (with-open-file (s file :direction :input)
-    (read-stream s add-word)))
+    (read-stream s #'(lambda (word)
+                      (setq trie (add-word word trie)))))
+  trie)
 
 
 (defun word-part-p (c)
