@@ -8,7 +8,7 @@
 
 (defpackage #:trie
   (:use #:common-lisp)
-  (:export #:make-trie #:add-word #:subtrie))
+  (:export #:make-trie #:add-word #:subtrie #:trie-word))
 
 (in-package #:trie)
 
@@ -38,7 +38,13 @@
   ; (print "does the trie have this?: ")
   ; (print (assoc (car chars) trie))
   (cond ((null (car chars)) trie)
-        (t (assoc (car chars) trie))))
+        ((null (assoc (car chars) trie)) nil)
+        ((null (cdr chars)) (cdr (assoc (car chars) trie)))
+        (t (subtrie (cdr (assoc (car chars) trie))
+                    (values-list (cdr chars))))))
+
+(defun trie-word (trie)
+  (assoc :word trie))
 
 ; (defun add-word (str trie)
 ;   (let ((s (make-string-input-stream str)))
