@@ -8,7 +8,8 @@
 
 (defpackage #:trie
   (:use #:common-lisp)
-  (:export #:make-trie #:add-word #:subtrie #:trie-word #:trie-count))
+  (:export #:make-trie #:add-word #:subtrie #:trie-word #:trie-count
+           #:mapc-trie #:read-words))
 
 (in-package #:trie)
 
@@ -82,7 +83,12 @@
       ((null (cdr out)) (car out))
       (t (reduce #'+ out)))))
               
-    
+(defun mapc-trie (fn trie)
+  (dolist (pair trie)
+    (unless (eql :word (car pair))
+      (funcall fn (car pair) (cdr pair)))))
+
+(defun read-words (file trie))
 
 
 ; (defun trie-count (trie)
