@@ -40,8 +40,8 @@
                 trie)))))
 
 (defun subtrie (trie &rest chars)
-  (pprint "trie: ")
-  (pprint trie)
+  ; (pprint "trie: ")
+  ; (pprint trie)
   ; (print "char1: ")
   ; (print (car chars))
   ; (print "chars")
@@ -71,16 +71,36 @@
 ; if the subtrie you are looking at has :word, then increment the counter
 
 (defun trie-count (trie)
-  ; (print trie)
-  ; (print (trie-word trie))
-  (cond
-    ((null (trie-word trie))
-     (reduce #'+ (mapcar #'(lambda (pair)
-                     ; (format t "pair: ~A~C" pair #\linefeed)
-                     (cond
-                       ((trie-word (cdr pair)) 1)
-                       (t (trie-count (cdr pair)))))
-                  trie)))
-    (t (print "woohoo") 1)))
+  (let ((out (mapcar #'(lambda (pair)
+                        (cond
+                          ((eql :word (car pair)) 1)
+                          (t (trie-count (cdr pair)))))
+                     trie)))
+    (cond
+      ((null out) 0)
+      ((atom out) out)
+      ((null (cdr out)) (car out))
+      (t (reduce #'+ out)))))
+              
+    
+
+
+; (defun trie-count (trie)
+;   (print trie)
+;   ; (print (trie-word trie))
+;   (cond
+;     ((null (trie-word trie))
+;      (mapcar #'(lambda (pair)
+;                      ; (format t "pair: ~A~C" pair #\linefeed)
+;                      (cond
+;                        ((trie-word (cdr pair))
+;                         (print "---- GOTEM ----")
+;                         (1+ (trie-count (cdr pair))))
+;                        ((null (cdr pair))
+;                         (format t "pair: ~A~C" pair #\linefeed)
+;                         1)
+;                        (t (trie-count (cdr pair)))))
+;                   trie))
+;     (t (print "woohoo") (trie-count (cdr trie)))))
     
     
