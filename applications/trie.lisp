@@ -19,14 +19,16 @@
   (let* ((lower (string-downcase str))
          (stream (make-string-input-stream lower)))
     (let ((c (read-char stream nil :eow)))
-      (setq trie (acons c (add-word-from-stream stream (make-trie)) trie))))
+      (setq trie
+        (acons c (add-word-from-stream lower stream (make-trie))
+               trie))))
   trie)
 
-(defun add-word-from-stream (stream trie)
+(defun add-word-from-stream (word stream trie)
   (let ((c (read-char stream nil :eow)))
     (if (eql c :eow)
-        nil  ; probably add the word to this node in some way.
-      (acons c (add-word-from-stream stream (make-trie)) trie))))
+        (acons :word word trie)
+      (acons c (add-word-from-stream word stream (make-trie)) trie))))
 
 (defun subtrie (trie &rest chars)
   ; (print "trie: ")
