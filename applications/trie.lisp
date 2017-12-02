@@ -18,13 +18,15 @@
 (defun make-trie ()
   nil)
 
+
+; TODO: change (setq trie (acons key val trie)) to apush macro?
 (defun add-word (str trie)
   (let* ((lower (string-downcase str))
          (stream (make-string-input-stream lower)))
     (let ((c (read-char stream nil :eow)))
       (if (assoc c trie)
-          (rplacd (assoc c trie)
-                  (add-word-from-stream lower stream (cdr (assoc c trie))))
+          (setf (cdr (assoc c trie))
+                (add-word-from-stream lower stream (cdr (assoc c trie))))
         (setq trie
           (acons c (add-word-from-stream lower stream (make-trie))
                  trie)))))
@@ -36,8 +38,8 @@
       ((eql c :eow)
        (acons :word word trie))
       ((assoc c trie)
-       (rplacd (assoc c trie)
-               (add-word-from-stream word stream (cdr (assoc c trie))))
+       (setf (cdr (assoc c trie))
+             (add-word-from-stream word stream (cdr (assoc c trie))))
        trie)
       (t (acons c (add-word-from-stream word stream (make-trie))
                 trie)))))
@@ -84,6 +86,9 @@
 (defun word-part-p (c)
   (or (alpha-char-p c) (char= c #\')))
 
+; TODO: reads the correct number if there is an extra
+; new line at the end of crosswd.txt SO fix it so that
+; it can do the same without the newline at end
 (defun read-stream (stream function)
   (do ((c (read-char stream nil :eof) (read-char stream nil :eof))
        (buffer (make-string maxword) buffer)
