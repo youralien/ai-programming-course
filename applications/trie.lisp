@@ -27,7 +27,7 @@
 (defun add-word-from-stream (word stream trie)
   (let ((c (read-char stream nil :eow)))
     (if (eql c :eow)
-        (cons :word word)
+        (acons :word word trie)
       (acons c (add-word-from-stream word stream (make-trie)) trie))))
 
 (defun subtrie (trie &rest chars)
@@ -57,7 +57,7 @@
 (defun trie-word (trie)
   ; (print "trie: ")
   ; (print trie)
-  (assoc :word (cdr trie)))t
+  (cdr (assoc :word trie)))
 
 ; (defun add-word (str trie)
 ;   (let ((s (make-string-input-stream str)))
