@@ -19,20 +19,29 @@
   (let* ((lower (string-downcase str))
          (stream (make-string-input-stream lower)))
     (let ((c (read-char stream nil :eow)))
-      (setq trie
-        (acons c (add-word-from-stream lower stream (make-trie))
-               trie))))
+      (if (assoc c trie)
+          (rplacd (assoc c trie)
+                  (add-word-from-stream lower stream (cdr (assoc c trie))))
+        (setq trie
+          (acons c (add-word-from-stream lower stream (make-trie))
+                 trie)))))
   trie)
 
 (defun add-word-from-stream (word stream trie)
   (let ((c (read-char stream nil :eow)))
-    (if (eql c :eow)
-        (acons :word word trie)
-      (acons c (add-word-from-stream word stream (make-trie)) trie))))
+    (cond
+      ((eql c :eow)
+       (acons :word word trie))
+      ((assoc c trie)
+       (rplacd (assoc c trie)
+               (add-word-from-stream word stream (cdr (assoc c trie))))
+       trie)
+      (t (acons c (add-word-from-stream word stream (make-trie))
+                trie)))))
 
 (defun subtrie (trie &rest chars)
-  ; (print "trie: ")
-  ; (print trie)
+  (pprint "trie: ")
+  (pprint trie)
   ; (print "char1: ")
   ; (print (car chars))
   ; (print "chars")
@@ -58,13 +67,20 @@
   (cdr (assoc :word trie)))
 
 
+; idea is to crawl down every branch of the trie
+; if the subtrie you are looking at has :word, then increment the counter
+
 (defun trie-count (trie)
-  (print trie)
-  (reduce #'+ (mapcar #'(lambda (pair)
-                     (format t "pair: ~A~C" pair #\linefeed)
+  ; (print trie)
+  ; (print (trie-word trie))
+  (cond
+    ((null (trie-word trie))
+     (reduce #'+ (mapcar #'(lambda (pair)
+                     ; (format t "pair: ~A~C" pair #\linefeed)
                      (cond
-                       ((trie-word trie) 1)
+                       ((trie-word (cdr pair)) 1)
                        (t (trie-count (cdr pair)))))
                   trie)))
+    (t (print "woohoo") 1)))
     
     
