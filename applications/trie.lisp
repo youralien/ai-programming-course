@@ -41,27 +41,11 @@
                 trie)))))
 
 (defun subtrie (trie &rest chars)
-  ; (pprint "trie: ")
-  ; (pprint trie)
-  ; (print "char1: ")
-  ; (print (car chars))
-  ; (print "chars")
-  ; (print chars)
-  ; (print "does the trie have this?: ")
-  ; (print (assoc (car chars) trie))
   (cond ((null (car chars)) trie) ; you go not chars, so return it right back
         ((null (assoc (car chars) trie)) nil) ; there's no character like that in the trie node
         ((null (cdr chars))
-         ; (print "chars again")
-         ; (print chars)
-         ; (print "(assoc (car chars) trie)")
-         ; (print (assoc (car chars) trie))
-         ; (print "(cdr (assoc (car chars) trie))")
-         ; (print (cdr (assoc (car chars) trie)))
          (cdr (assoc (car chars) trie)))
-        (t ; (print "cdr chars")
-           ; (print (cdr chars))
-           (apply #'subtrie (cons (cdr (assoc (car chars) trie))
+        (t (apply #'subtrie (cons (cdr (assoc (car chars) trie))
                                   (cdr chars))))))
 
 (defun trie-word (trie)
@@ -88,7 +72,31 @@
     (unless (eql :word (car pair))
       (funcall fn (car pair) (cdr pair)))))
 
-(defun read-words (file trie))
+(defun read-words (file trie)
+  (with-open-file (s file :direction :input)
+    (read-stream s add-word)))
+
+
+(defun word-part-p (c)
+  (or (alpha-char-p c) (char= c #\')))
+
+(defun read-stream (stream function)
+  (do ((c (read-char stream nil :eof) (read-char stream nil :eof))
+       (buffer (make-string maxword) buffer)
+       (pos 0 (if (word-part-p c) (1+ pos) 0)))
+      ((eql c :eof))
+    (cond
+      ((word-part-p c) (setf (aref buffer pos) c))
+      (t (unless (zerop pos)
+           (funcall function (intern (string-downcase
+                          (subseq buffer 0 pos)))))
+         (let ((p (punc c)))
+           (when p (funcall function p)))))))
+
+(defun punc (c)
+  (case c
+    (#\. '|.|) (#\, '|,|) (#\; '|;|) 
+    (#\! '|!|) (#\? '|?|) ))
 
 
 ; (defun trie-count (trie)
