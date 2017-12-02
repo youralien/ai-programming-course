@@ -8,7 +8,7 @@
 
 (defpackage #:trie
   (:use #:common-lisp)
-  (:export #:make-trie #:add-word #:subtrie #:trie-word))
+  (:export #:make-trie #:add-word #:subtrie #:trie-word #:trie-count))
 
 (in-package #:trie)
 
@@ -55,27 +55,16 @@
                                   (cdr chars))))))
 
 (defun trie-word (trie)
-  ; (print "trie: ")
-  ; (print trie)
   (cdr (assoc :word trie)))
 
-; (defun add-word (str trie)
-;   (let ((s (make-string-input-stream str)))
-;     (do* ((c (read-char s nil :eow)
-;              (read-char s nil :eow))
-;           (prevnode trie node)
-;           (node (make-trie) (make-trie))
-;           (prevnode (acons c node trie) (acons c node prevnode)))
-;          ((eql c :eow) trie))))
-;       ; todo: not changing trie; it's not aliasing and binding like I want.
-;       ; (print node))))
 
-; (defvar *trie* (main))
-
-; (defun main()
-;   (let* ((trie (make-trie))
-;          (out (add-word "hello" trie)))
-;     (print (assoc #\h out))
-;     out))
+(defun trie-count (trie)
+  (print trie)
+  (reduce #'+ (mapcar #'(lambda (pair)
+                     (format t "pair: ~A~C" pair #\linefeed)
+                     (cond
+                       ((trie-word trie) 1)
+                       (t (trie-count (cdr pair)))))
+                  trie)))
     
     
