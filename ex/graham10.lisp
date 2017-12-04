@@ -22,14 +22,16 @@
            (,accum nil (cons ,expr ,accum)))
           ((>= ,counter ,stopsym) (reverse ,accum))))))
 
+
+
 ; last submission
-(defmacro preserve (syms &rest body)
-  (if (null (cdr syms))
-      (car syms)
-    `(let ,(mapcar #'(lambda (s)
-                      `(,s (gensym)))
-                   syms)
-      ,@body)))
+; (defmacro preserve (syms &rest body)
+;   (if (null (cdr syms))
+;       (car syms)
+;     `(let ,(mapcar #'(lambda (s)
+;                       `(,s (gensym)))
+;                    syms)
+;       ,@body)))
 
 ; ;PRESERVE: Illegal function object: (SETQ *READ-BASE* 2).
 ; (defmacro preserve (syms &rest body)
@@ -48,6 +50,27 @@
 ;                  syms)
 ;      ,@body)
 ;   syms)
+
+(defmacro preserve (syms &rest body)
+  `(let ,(mapcar #'(lambda (s) (list s s)) syms)
+     ,@body))
+
+(print
+  (macroexpand-1 `(preserve (*READ-BASE*) *READ-BASE*)))
+
+(run-tests preserve)
+
+(defun preserve-test (a b)
+  (let ((a a)
+        (b b))
+    ; (setq a 1)
+    ; (setq b 1)
+    (print a)
+    (print b))
+  (print a)
+  (print b))
+
+(preserve-test 5 6)
 
 ; (defmacro preserve (syms &rest body)
 ;   `(let ,(mapcar #'(lambda (s) (,s (gensym))) ,syms) ,@body)
