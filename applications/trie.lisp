@@ -45,8 +45,8 @@
                 trie)))))
 
 (defun subtrie (trie &rest chars)
-  (cond ((null (car chars)) trie) ; you go not chars, so return it right back
-        ((null (assoc (car chars) trie)) nil) ; there's no character like that in the trie node
+  (cond ((null chars) trie)
+        ((null (assoc (car chars) trie)) nil)
         ((null (cdr chars))
          (cdr (assoc (car chars) trie)))
         (t (apply #'subtrie (cons (cdr (assoc (car chars) trie))
@@ -78,35 +78,10 @@
 
 (defun read-words (file trie)
   (with-open-file (s file :direction :input)
-    (read-stream s #'(lambda (word)
-                      (setq trie (add-word word trie)))))
-  trie)
-
-
-(defun word-part-p (c)
-  (or (alpha-char-p c) (char= c #\')))
-
-; TODO: reads the correct number if there is an extra
-; new line at the end of crosswd.txt SO fix it so that
-; it can do the same without the newline at end
-(defun read-stream (stream function)
-  (do ((c (read-char stream nil :eof) (read-char stream nil :eof))
-       (buffer (make-string maxword) buffer)
-       (pos 0 (if (word-part-p c) (1+ pos) 0)))
-      ((eql c :eof))
-    (cond
-      ((word-part-p c) (setf (aref buffer pos) c))
-      (t (unless (zerop pos)
-           (funcall function (intern (string-downcase
-                          (subseq buffer 0 pos)))))
-         (let ((p (punc c)))
-           (when p (funcall function p)))))))
-
-(defun punc (c)
-  (case c
-    (#\. '|.|) (#\, '|,|) (#\; '|;|) 
-    (#\! '|!|) (#\? '|?|) ))
-
+    (do ((word (read-line s nil :eof)
+               (read-line s nil :eof)))
+        ((eql word :eof) trie)
+      (setq trie (add-word word trie)))))
 
 ; (defun trie-count (trie)
 ;   (print trie)
